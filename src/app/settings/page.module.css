@@ -54,16 +54,56 @@
 }
 
 .avatar {
-    width: 48px;
-    height: 48px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     background: var(--primary);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 600;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 2px solid var(--border);
+}
+
+.avatarWrapper {
+    position: relative;
+    width: 64px;
+    height: 64px;
+}
+
+.avatarUpload {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    background: var(--primary);
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid var(--surface);
+    overflow: hidden;
+}
+
+.avatarUpload span {
+    display: none;
+}
+
+.avatarUpload::after {
+    content: '+';
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.avatarWrapper:hover .avatarUpload {
+    transform: scale(1.1);
 }
 
 .profileInfo {
@@ -183,4 +223,60 @@
 .logoutButton:hover {
     background: #ef4444;
     color: white;
+}
+
+.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.suggestions {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.suggestionLabel {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.suggestionList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.suggestionBadge {
+    background: #f7f7f7;
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.suggestionBadge:hover {
+    background: #eeeeee;
+    border-color: #cccccc;
+}
+
+[data-theme='dark'] .suggestionBadge {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+[data-theme='dark'] .suggestionBadge:hover {
+    background: rgba(255, 255, 255, 0.1);
 }

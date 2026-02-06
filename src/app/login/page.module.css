@@ -81,6 +81,12 @@
     margin-bottom: 0.5rem;
 }
 
+.subtitle {
+    font-size: 0.9375rem;
+    color: var(--auth-text-muted);
+    margin-top: 0.5rem;
+}
+
 .form {
     display: flex;
     flex-direction: column;
@@ -96,6 +102,13 @@
 .inputGroup {
     display: flex;
     flex-direction: column;
+}
+
+.label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--auth-text);
+    margin-bottom: 0.5rem;
 }
 
 .inputWrapper {
@@ -216,6 +229,17 @@
     text-decoration: underline;
 }
 
+.linkHighlight {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.linkHighlight:hover {
+    opacity: 0.8;
+}
+
 .error {
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid #ef4444;
@@ -225,4 +249,39 @@
     font-size: 0.875rem;
     margin-bottom: 1.5rem;
     text-align: center;
+}
+
+.suggestions {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.suggestionLabel {
+    font-size: 0.75rem;
+    color: var(--auth-text-muted);
+    font-weight: 500;
+}
+
+.suggestionList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.suggestionBadge {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--auth-border);
+    color: var(--auth-text);
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.suggestionBadge:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
 }

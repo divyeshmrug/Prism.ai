@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import styles from './Sidebar.module.css';
@@ -15,6 +15,18 @@ const Sidebar = ({ onNewChat, onLoadChat, history = [] }: SidebarProps) => {
     const pathname = usePathname();
     const router = useRouter();
     const [showAllHistory, setShowAllHistory] = useState(false);
+    const [userData, setUserData] = useState({
+        name: 'Demo User',
+        username: 'demo_user',
+        avatar: ''
+    });
+
+    useEffect(() => {
+        const name = localStorage.getItem('prism_user_name') || 'Demo User';
+        const username = localStorage.getItem('prism_username') || 'demo_user';
+        const avatar = localStorage.getItem('prism_user_avatar') || '';
+        setUserData({ name, username, avatar });
+    }, []);
 
     const displayedHistory = showAllHistory ? history : history.slice(0, 5);
 
@@ -77,22 +89,29 @@ const Sidebar = ({ onNewChat, onLoadChat, history = [] }: SidebarProps) => {
                     )}
                 </div>
 
-                {navItems.map((item) => (
-                    <Link
-                        key={item.path}
-                        href={item.path}
-                        className={`${styles.navItem} ${pathname === item.path ? styles.active : ''}`}
-                    >
-                        {item.name}
-                    </Link>
-                ))}
+                <div className={styles.navBottom}>
+                    {navItems.map((item) => (
+                        <Link
+                            key={item.path}
+                            href={item.path}
+                            className={`${styles.navItem} ${pathname === item.path ? styles.active : ''}`}
+                        >
+                            {item.name}
+                        </Link>
+                    ))}
+                </div>
             </nav>
 
             <div className={styles.user}>
-                <div className={styles.avatar} />
+                <div
+                    className={styles.avatar}
+                    style={userData.avatar && userData.avatar.length > 10 ? { backgroundImage: `url(${userData.avatar})`, backgroundSize: 'cover', color: 'transparent' } : {}}
+                >
+                    {(!userData.avatar || userData.avatar.length < 10) && userData.name.charAt(0).toUpperCase()}
+                </div>
                 <div className={styles.userInfo}>
-                    <span className={styles.userName}>Demo User</span>
-                    <span className={styles.userRole}>Admin</span>
+                    <span className={styles.userName}>{userData.name}</span>
+                    <span className={styles.userRole}>@{userData.username}</span>
                 </div>
             </div>
         </aside>
