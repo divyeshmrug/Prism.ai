@@ -182,6 +182,31 @@
   line-height: 1.6;
 }
 
+.thinking {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #888;
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.5;
+  }
+}
+
 /* Input Area */
 .inputArea {
   position: absolute;

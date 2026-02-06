@@ -17,35 +17,33 @@ type Message = {
   };
 };
 
+type ChatSession = {
+  id: string;
+  title: string;
+  messages: Message[];
+};
+
 export default function Home() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [history, setHistory] = useState<Array<{ title: string, messages: Message[] }>>([]);
-  const [shared, setShared] = useState(false);
+  const [history, setHistory] = useState<ChatSession[]>([]);
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isThinking, setIsThinking] = useState(false);
   const [thinkingMessage, setThinkingMessage] = useState('');
 
   const handleNewChat = () => {
-    if (messages.length > 0) {
-      const firstUserMsg = messages.find(m => m.role === 'user');
-      const title = firstUserMsg ? firstUserMsg.content : 'New Chat';
-      setHistory(prev => [{ title, messages: [...messages] }, ...prev]);
-    }
     setMessages([]);
     setInput('');
+    setActiveChatId(null);
   };
 
-  const handleLoadChat = (index: number) => {
-    const chatToLoad = history[index];
+  const handleLoadChat = (id: string) => {
+    const chatToLoad = history.find(chat => chat.id === id);
     if (chatToLoad) {
-      if (messages.length > 0) {
-        const firstUserMsg = messages.find(m => m.role === 'user');
-        const title = firstUserMsg ? firstUserMsg.content : 'New Chat';
-        setHistory(prev => [{ title, messages: [...messages] }, ...prev]);
-      }
       setMessages(chatToLoad.messages);
+      setActiveChatId(chatToLoad.id);
     }
   };
 
@@ -110,11 +108,36 @@ export default function Home() {
     setTimeout(() => {
       clearInterval(interval);
       setIsThinking(false);
-      setMessages(prev => [...prev, {
+
+      const aiResponse: Message = {
         role: 'prism',
         content: responseText,
         insight
-      }]);
+      };
+
+      setMessages(prev => {
+        const newMessages = [...prev, aiResponse];
+
+        // Update history
+        setHistory(prevHistory => {
+          const currentChatId = activeChatId || Date.now().toString();
+          if (!activeChatId) setActiveChatId(currentChatId);
+
+          const existingChatIndex = prevHistory.findIndex(chat => chat.id === currentChatId);
+          const firstUserMsg = newMessages.find(m => m.role === 'user');
+          const title = firstUserMsg ? firstUserMsg.content : 'New Chat';
+
+          if (existingChatIndex !== -1) {
+            const updatedHistory = [...prevHistory];
+            updatedHistory[existingChatIndex] = { ...updatedHistory[existingChatIndex], messages: newMessages, title };
+            return updatedHistory;
+          } else {
+            return [{ id: currentChatId, title, messages: newMessages }, ...prevHistory];
+          }
+        });
+
+        return newMessages;
+      });
     }, 2400);
 
     setInput('');
