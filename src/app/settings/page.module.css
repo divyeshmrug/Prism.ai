@@ -1,0 +1,186 @@
+.container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--background);
+}
+
+.main {
+    flex: 1;
+    margin-left: 250px;
+    padding: 3rem;
+    max-width: 1000px;
+}
+
+.header {
+    margin-bottom: 3rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: var(--text-muted);
+}
+
+.section {
+    margin-bottom: 2.5rem;
+}
+
+.sectionTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.profileRow {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    gap: 1rem;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.profileInfo {
+    flex: 1;
+}
+
+.profileName {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.profileEmail {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.editButton {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.editButton:hover {
+    background: var(--surface-highlight);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.editForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+}
+
+.editInput {
+    background: var(--surface-highlight);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.editInput:focus {
+    border-color: var(--primary);
+}
+
+.formActions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.saveButton {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.saveButton:hover {
+    opacity: 0.9;
+}
+
+.cancelButton {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cancelButton:hover {
+    background: var(--surface-highlight);
+}
+
+.settingRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    color: var(--text-primary);
+}
+
+.select {
+    background: var(--surface-highlight);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 0.5rem;
+    border-radius: 6px;
+    outline: none;
+}
+
+.logoutButton {
+    width: 100%;
+    padding: 1rem;
+    background: transparent;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logoutButton:hover {
+    background: #ef4444;
+    color: white;
+}

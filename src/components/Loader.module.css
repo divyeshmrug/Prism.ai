@@ -1,0 +1,67 @@
+.loaderContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+.prism {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    transform-style: preserve-3d;
+    animation: rotate 3s infinite linear;
+    margin-bottom: 1.5rem;
+}
+
+.face {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(99, 102, 241, 0.8);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.face:nth-child(1) {
+    transform: rotateY(0deg) translateZ(15px) rotateX(30deg);
+}
+
+.face:nth-child(2) {
+    transform: rotateY(120deg) translateZ(15px) rotateX(30deg);
+}
+
+.face:nth-child(3) {
+    transform: rotateY(240deg) translateZ(15px) rotateX(30deg);
+}
+
+.text {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotateY(0deg);
+    }
+
+    100% {
+        transform: rotateY(360deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}

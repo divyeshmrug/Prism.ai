@@ -1,0 +1,150 @@
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 3rem;
+    padding: 0 0.5rem;
+}
+
+.logoIcon {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 6px;
+    box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.logoText {
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: linear-gradient(to right, #fff, #ccc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.newChatBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    color: var(--text-primary);
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    width: 100%;
+}
+
+.newChatBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.historySection {
+    margin-top: 1rem;
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.historyLabel {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    padding: 0 0.5rem;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.historyItem {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.historyItem:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.navItem {
+    display: block;
+    padding: 0.75rem 0.5rem;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.navItem:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-primary);
+}
+
+.active {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.user {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(to bottom right, #333, #111);
+    border: 1px solid var(--border);
+}
+
+.userInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.userName {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.userRole {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
