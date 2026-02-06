@@ -146,3 +146,20 @@
     font-size: 0.75rem;
     color: var(--text-muted);
 }
+
+.viewMoreBtn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    padding: 0.5rem;
+    text-align: left;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    font-weight: 500;
+}
+
+.viewMoreBtn:hover {
+    opacity: 1;
+}

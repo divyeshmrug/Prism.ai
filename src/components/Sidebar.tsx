@@ -1,18 +1,22 @@
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
     onNewChat?: () => void;
-    onLoadChat?: (index: number) => void;
-    history?: { title: string }[];
+    onLoadChat?: (id: string) => void;
+    history?: { id: string; title: string }[];
 }
 
 const Sidebar = ({ onNewChat, onLoadChat, history = [] }: SidebarProps) => {
     const pathname = usePathname();
     const router = useRouter();
+    const [showAllHistory, setShowAllHistory] = useState(false);
+
+    const displayedHistory = showAllHistory ? history : history.slice(0, 5);
 
     const handleNewChat = () => {
         if (onNewChat) {
@@ -51,15 +55,25 @@ const Sidebar = ({ onNewChat, onLoadChat, history = [] }: SidebarProps) => {
                     {history.length === 0 ? (
                         <div className={styles.historyItem} style={{ pointerEvents: 'none', fontStyle: 'italic', opacity: 0.5 }}>No recent chats</div>
                     ) : (
-                        history.map((item, i) => (
-                            <div
-                                key={i}
-                                className={styles.historyItem}
-                                onClick={() => onLoadChat && onLoadChat(i)}
-                            >
-                                {item.title}
-                            </div>
-                        ))
+                        <>
+                            {displayedHistory.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className={styles.historyItem}
+                                    onClick={() => onLoadChat && onLoadChat(item.id)}
+                                >
+                                    {item.title}
+                                </div>
+                            ))}
+                            {history.length > 5 && (
+                                <button
+                                    onClick={() => setShowAllHistory(!showAllHistory)}
+                                    className={styles.viewMoreBtn}
+                                >
+                                    {showAllHistory ? 'Show less' : 'View more'}
+                                </button>
+                            )}
+                        </>
                     )}
                 </div>
 
