@@ -15,7 +15,7 @@ export default function ForgotPassword() {
     };
 
     return (
-        <div className={styles.container}>
+        <div className={`aurora-bg ${styles.container}`}>
             <div className={styles.card}>
                 <div className={styles.header}>
                     <h1 className={styles.title}>Reset password</h1>

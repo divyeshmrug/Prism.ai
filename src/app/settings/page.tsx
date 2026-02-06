@@ -130,7 +130,7 @@ export default function Settings() {
                                 value={theme}
                                 onChange={(e) => handleThemeChange(e.target.value)}
                             >
-                                <option value="dark">Dark (Default)</option>
+                                <option value="dark">Dark</option>
                                 <option value="light">Light</option>
                             </select>
                         </div>
