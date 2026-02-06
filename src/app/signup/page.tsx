@@ -43,7 +43,7 @@ export default function Signup() {
             <div className={styles.card}>
                 <div className={styles.header}>
                     <h1 className={styles.title}>Create account</h1>
-                    <p className={styles.subtitle}>Get started with Prism AI today</p>
+                    <p className={styles.subtitle}>Get started with Prizm AI today</p>
                 </div>
 
                 {error && <div className={styles.error}>{error}</div>}

@@ -19,11 +19,10 @@
     padding: 0 0.5rem;
 }
 
-.logoIcon {
-    width: 24px;
-    height: 24px;
-    background: black;
-    border-radius: 6px;
+.logoIconImage {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
 }
 
 .logoText {
