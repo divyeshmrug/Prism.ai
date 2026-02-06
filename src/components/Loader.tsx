@@ -8,7 +8,7 @@ const Loader = () => {
                 <div className={styles.face}></div>
                 <div className={styles.face}></div>
             </div>
-            <p className={styles.text}>Initializing Prism AI...</p>
+            <p className={styles.text}>Initializing Prizm AI...</p>
         </div>
     );
 };
