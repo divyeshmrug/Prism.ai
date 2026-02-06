@@ -1,18 +1,63 @@
 :root {
   --background: #000000;
   --foreground: #ececec;
-  --primary: #10a37f;
-  --primary-glow: rgba(16, 163, 127, 0.4);
-  --secondary: #5436da;
-  --surface: #202123;
-  --surface-highlight: #343541;
-  --border: #444654;
-  --text-primary: #ffffff;
-  --text-secondary: #c5c5d2;
-  --text-muted: #71717a;
+  --primary: #CCFF00;
+  /* Lime green from image */
+  --primary-glow: rgba(204, 255, 0, 0.4);
+  --secondary: #000000;
+  --surface: #ffffff;
+  --surface-highlight: #F7F7F7;
+  --border: #E5E5E5;
+  --text-primary: #000000;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+
+  /* Auth Theme (Dark/Aurora) */
+  --auth-bg: #000000;
+  --auth-surface: rgba(23, 23, 23, 0.7);
+  --auth-border: rgba(255, 255, 255, 0.1);
+  --auth-input: rgba(35, 35, 35, 0.5);
+  --auth-text: #FFFFFF;
+  --auth-text-muted: #999999;
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --transition: 0.3s ease;
+}
+
+@keyframes aurora {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.aurora-bg {
+  background: linear-gradient(-45deg, #000000, #0a0a1a, #1a1a3a, #000000);
+  background-size: 400% 400%;
+  animation: aurora 15s ease infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.aurora-bg::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(64, 123, 255, 0.1) 0%, transparent 70%),
+    radial-gradient(circle at 80% 20%, rgba(204, 255, 0, 0.05) 0%, transparent 50%);
+  filter: blur(80px);
+  z-index: 0;
+  pointer-events: none;
 }
 
 [data-theme='light'] {
@@ -90,6 +135,7 @@ h6 {
 .text-gradient {
   background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
