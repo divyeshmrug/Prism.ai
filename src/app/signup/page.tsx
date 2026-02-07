@@ -13,10 +13,25 @@ export default function Signup() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
 
+    // Verification state
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [userEnteredCode, setUserEnteredCode] = useState('');
+
     const handleSignup = (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         setSuccess(false);
+
+        if (isVerifying) {
+            // Verify code
+            if (userEnteredCode === verificationCode) {
+                completeSignup();
+            } else {
+                setError('Invalid verification code. Please try again.');
+            }
+            return;
+        }
 
         // Validate full name
         if (!name.trim()) {
@@ -30,8 +45,8 @@ export default function Signup() {
             return;
         }
 
-        // Email validation - strict regex
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // Email validation - stricter regex
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailRegex.test(email)) {
             setError('Please enter a valid email address.');
             return;
@@ -57,14 +72,31 @@ export default function Signup() {
             return;
         }
 
-        // Store the new user with name, email, and password
+        // Generate and send verification code (Mock)
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        setVerificationCode(code);
+        setIsVerifying(true);
+
+        // Mock sending email
+        setTimeout(() => {
+            alert(`Your verification code is: ${code}`);
+        }, 500);
+    };
+
+    const completeSignup = () => {
+        // Generate username from name
+        const username = name.toLowerCase().replace(/\s+/g, '_') + Math.floor(Math.random() * 1000);
+
+        // Store the new user with name, email, password, and username
         const newUser = {
             name,
             email,
             password,
+            username,
             createdAt: new Date().toISOString()
         };
 
+        const existingUsers = JSON.parse(localStorage.getItem('prism_registered_users') || '[]');
         existingUsers.push(newUser);
         localStorage.setItem('prism_registered_users', JSON.stringify(existingUsers));
 
@@ -85,8 +117,8 @@ export default function Signup() {
                 </button>
 
                 <div className={styles.header}>
-                    <h1 className={styles.title}>Create your account</h1>
-                    <p className={styles.subtitle}>Join Prism AI today</p>
+                    <h1 className={styles.title}>{isVerifying ? 'Verify Email' : 'Create your account'}</h1>
+                    <p className={styles.subtitle}>{isVerifying ? `Enter the code sent to ${email}` : 'Join Prism AI today'}</p>
                 </div>
 
                 {success && (
@@ -107,72 +139,117 @@ export default function Signup() {
                 {error && <div className={styles.error}>{error}</div>}
 
                 <form className={styles.form} onSubmit={handleSignup}>
-                    <div className={styles.inputGroup}>
-                        <label htmlFor="name" className={styles.label}>Full Name</label>
-                        <div className={styles.inputWrapper}>
-                            <span className={styles.inputIcon}>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
-                            </span>
-                            <input
-                                type="text"
-                                id="name"
-                                className={`${styles.input} ${styles.inputWithIcon}`}
-                                placeholder="John Doe"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                autoComplete="name"
-                            />
-                        </div>
-                    </div>
+                    {!isVerifying ? (
+                        <>
+                            <div className={styles.inputGroup}>
+                                <label htmlFor="name" className={styles.label}>Full Name</label>
+                                <div className={styles.inputWrapper}>
+                                    <span className={styles.inputIcon}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="12" cy="7" r="4"></circle>
+                                        </svg>
+                                    </span>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        className={`${styles.input} ${styles.inputWithIcon}`}
+                                        placeholder="John Doe"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        autoComplete="name"
+                                    />
+                                </div>
+                            </div>
 
-                    <div className={styles.inputGroup}>
-                        <label htmlFor="email" className={styles.label}>Email Address</label>
-                        <div className={styles.inputWrapper}>
-                            <span className={styles.inputIcon}>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                    <polyline points="22,6 12,13 2,6"></polyline>
-                                </svg>
-                            </span>
-                            <input
-                                type="email"
-                                id="email"
-                                className={`${styles.input} ${styles.inputWithIcon}`}
-                                placeholder="you@example.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                autoComplete="email"
-                            />
-                        </div>
-                    </div>
+                            <div className={styles.inputGroup}>
+                                <label htmlFor="email" className={styles.label}>Email Address</label>
+                                <div className={styles.inputWrapper}>
+                                    <span className={styles.inputIcon}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                            <polyline points="22,6 12,13 2,6"></polyline>
+                                        </svg>
+                                    </span>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        className={`${styles.input} ${styles.inputWithIcon}`}
+                                        placeholder="you@example.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        autoComplete="email"
+                                    />
+                                </div>
+                            </div>
 
-                    <div className={styles.inputGroup}>
-                        <label htmlFor="password" className={styles.label}>Password</label>
-                        <div className={styles.inputWrapper}>
-                            <span className={styles.inputIcon}>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                                </svg>
-                            </span>
-                            <input
-                                type="password"
-                                id="password"
-                                className={`${styles.input} ${styles.inputWithIcon}`}
-                                placeholder="••••••••"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                autoComplete="new-password"
-                            />
+                            <div className={styles.inputGroup}>
+                                <label htmlFor="password" className={styles.label}>Password</label>
+                                <div className={styles.inputWrapper}>
+                                    <span className={styles.inputIcon}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                        </svg>
+                                    </span>
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        className={`${styles.input} ${styles.inputWithIcon}`}
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        autoComplete="new-password"
+                                    />
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className={styles.inputGroup}>
+                            <label htmlFor="code" className={styles.label}>Verification Code</label>
+                            <div className={styles.inputWrapper}>
+                                <span className={styles.inputIcon}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                </span>
+                                <input
+                                    type="text"
+                                    id="code"
+                                    className={`${styles.input} ${styles.inputWithIcon}`}
+                                    placeholder="Enter 6-digit code"
+                                    value={userEnteredCode}
+                                    onChange={(e) => setUserEnteredCode(e.target.value)}
+                                    maxLength={6}
+                                />
+                            </div>
+                            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => alert(`Resent code: ${verificationCode}`)}
+                                    style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', textDecoration: 'underline' }}
+                                >
+                                    Resend Code
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     <button type="submit" className={styles.button}>
-                        Create Account
+                        {isVerifying ? 'Verify & Create Account' : 'Create Account'}
                     </button>
+
+                    {isVerifying && (
+                        <button
+                            type="button"
+                            className={styles.button}
+                            style={{ marginTop: '10px', background: 'transparent', border: '1px solid var(--border-color)' }}
+                            onClick={() => setIsVerifying(false)}
+                        >
+                            Back
+                        </button>
+                    )}
                 </form>
 
                 <div className={styles.footer}>

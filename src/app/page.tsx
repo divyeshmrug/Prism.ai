@@ -238,10 +238,7 @@ export default function Home() {
             <span>Home</span>
             <span style={{ fontSize: '0.7rem', marginLeft: '0.5rem' }}>▼</span>
           </div>
-          <div className={styles.headerActions}>
-            <button className={styles.actionBtn} onClick={() => router.push('/login')}>Login</button>
-            <button className={styles.actionBtn} style={{ background: '#000', color: '#fff' }} onClick={() => router.push('/login')}>Sign Up</button>
-          </div>
+
         </header>
 
         <div className={styles.chatArea}>

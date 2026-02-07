@@ -15,6 +15,10 @@ function LoginContent() {
     const [error, setError] = useState('');
     const [signupSuccess, setSignupSuccess] = useState(false);
 
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [userEnteredCode, setUserEnteredCode] = useState('');
+
     useEffect(() => {
         if (searchParams.get('signup') === 'success') {
             setSignupSuccess(true);
@@ -26,6 +30,28 @@ function LoginContent() {
         setError('');
         setSignupSuccess(false);
 
+        if (!isLogin && isVerifying) {
+            if (userEnteredCode === verificationCode) {
+                // Signup Logic - Complete
+                const username = name.toLowerCase().replace(/\s+/g, '_') + Math.floor(Math.random() * 1000);
+                const newUser = { name, email, password, username };
+                const existingUsers = JSON.parse(localStorage.getItem('prism_registered_users') || '[]');
+                existingUsers.push(newUser);
+                localStorage.setItem('prism_registered_users', JSON.stringify(existingUsers));
+                setIsLogin(true);
+                setSignupSuccess(true);
+                setIsVerifying(false);
+                setVerificationCode('');
+                setUserEnteredCode('');
+                setName('');
+                setEmail('');
+                setPassword('');
+            } else {
+                setError('Invalid verification code.');
+            }
+            return;
+        }
+
         if (!email || !password || (!isLogin && !name)) {
             setError('Please fill in all required fields.');
             return;
@@ -33,7 +59,7 @@ function LoginContent() {
 
         // Email validation (only if it looks like an email)
         if (email.includes('@')) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             if (!emailRegex.test(email)) {
                 setError('Please enter a valid email address.');
                 return;
@@ -64,17 +90,20 @@ function LoginContent() {
                 setError('Invalid email/username or password.');
             }
         } else {
-            // Signup Logic
-            const newUser = { name, email, password };
+            // Check if user exists
             const existingUsers = JSON.parse(localStorage.getItem('prism_registered_users') || '[]');
             if (existingUsers.some((u: any) => u.email === email)) {
                 setError('An account with this email already exists.');
                 return;
             }
-            existingUsers.push(newUser);
-            localStorage.setItem('prism_registered_users', JSON.stringify(existingUsers));
-            setIsLogin(true);
-            setSignupSuccess(true);
+
+            // Start verification
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            setVerificationCode(code);
+            setIsVerifying(true);
+            setTimeout(() => {
+                alert(`Your verification code is: ${code}`);
+            }, 500);
         }
     };
 
@@ -123,48 +152,117 @@ function LoginContent() {
 
                 <form className={styles.form} onSubmit={handleAuth}>
                     {!isLogin && (
-                        <div className={styles.inputGroup}>
-                            <input
-                                type="text"
-                                className={styles.input}
-                                placeholder="Full name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                            />
-                        </div>
+                        !isVerifying ? (
+                            <>
+                                <div className={styles.inputGroup}>
+                                    <input
+                                        type="text"
+                                        className={styles.input}
+                                        placeholder="Full name"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                    />
+                                </div>
+                                <div className={styles.inputGroup}>
+                                    <div className={styles.inputWrapper}>
+                                        <span className={styles.inputIcon}>
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                        </span>
+                                        <input
+                                            type="text"
+                                            className={`${styles.input} ${styles.inputWithIcon}`}
+                                            placeholder="Email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className={styles.inputGroup}>
+                                    <div className={styles.inputWrapper}>
+                                        <span className={styles.inputIcon}>
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                        </span>
+                                        <input
+                                            type="password"
+                                            className={`${styles.input} ${styles.inputWithIcon}`}
+                                            placeholder="Password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <div className={styles.inputGroup}>
+                                <div className={styles.inputWrapper}>
+                                    <input
+                                        type="text"
+                                        className={styles.input}
+                                        placeholder="Verification Code"
+                                        value={userEnteredCode}
+                                        onChange={(e) => setUserEnteredCode(e.target.value)}
+                                        maxLength={6}
+                                    />
+                                </div>
+                                <button
+                                    type="button"
+                                    className={styles.button}
+                                    style={{ marginTop: '10px', background: 'transparent', border: 'none', color: 'var(--primary)', textDecoration: 'underline' }}
+                                    onClick={() => alert(`Resent code: ${verificationCode}`)}
+                                >
+                                    Resend Code
+                                </button>
+                            </div>
+                        )
                     )}
-                    <div className={styles.inputGroup}>
-                        <div className={styles.inputWrapper}>
-                            <span className={styles.inputIcon}>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            </span>
-                            <input
-                                type="text"
-                                className={`${styles.input} ${styles.inputWithIcon}`}
-                                placeholder="Email or Username"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-                    </div>
-                    <div className={styles.inputGroup}>
-                        <div className={styles.inputWrapper}>
-                            <span className={styles.inputIcon}>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                            </span>
-                            <input
-                                type="password"
-                                className={`${styles.input} ${styles.inputWithIcon}`}
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </div>
-                    </div>
+
+                    {isLogin && (
+                        <>
+                            <div className={styles.inputGroup}>
+                                <div className={styles.inputWrapper}>
+                                    <span className={styles.inputIcon}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                    </span>
+                                    <input
+                                        type="text"
+                                        className={`${styles.input} ${styles.inputWithIcon}`}
+                                        placeholder="Email or Username"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div className={styles.inputGroup}>
+                                <div className={styles.inputWrapper}>
+                                    <span className={styles.inputIcon}>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                    </span>
+                                    <input
+                                        type="password"
+                                        className={`${styles.input} ${styles.inputWithIcon}`}
+                                        placeholder="Password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        </>
+                    )}
 
                     <button type="submit" className={styles.button}>
-                        {isLogin ? 'Sign in' : 'Create an account'}
+                        {isLogin ? 'Sign in' : (isVerifying ? 'Verify & Sign up' : 'Create an account')}
                     </button>
+
+                    {!isLogin && isVerifying && (
+                        <button
+                            type="button"
+                            className={styles.button}
+                            style={{ marginTop: '10px', background: 'transparent', border: '1px solid var(--border-color)' }}
+                            onClick={() => setIsVerifying(false)}
+                        >
+                            Back
+                        </button>
+                    )}
                 </form>
 
                 <div className={styles.divider}>OR SIGN IN WITH</div>

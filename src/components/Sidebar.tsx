@@ -38,13 +38,7 @@ const Sidebar = ({ onNewChat, onLoadChat, history = [] }: SidebarProps) => {
         }
     };
 
-    const handleLogoClick = () => {
-        if (onNewChat) {
-            onNewChat();
-        } else {
-            router.push('/');
-        }
-    }
+
 
     const navItems = [
         { name: 'Settings', path: '/settings' },
@@ -52,10 +46,7 @@ const Sidebar = ({ onNewChat, onLoadChat, history = [] }: SidebarProps) => {
 
     return (
         <aside className={styles.sidebar}>
-            <div className={styles.logo} onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
-                <img src="/logo.png" alt="Prizm AI Logo" className={styles.logoIconImage} />
-                <span className={styles.logoText}>Prizm AI</span>
-            </div>
+
 
             <nav className={styles.nav}>
                 <button onClick={handleNewChat} className={styles.newChatBtn}>
