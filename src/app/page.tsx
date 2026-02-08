@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { useRouter } from 'next/navigation';
 import Sidebar, { ViewType } from '@/components/Sidebar';
 import ChatMessage from '@/components/ChatMessage';
 import ChatInput from '@/components/ChatInput';
@@ -22,12 +23,21 @@ interface Chat {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [activeView, setActiveView] = useState<ViewType>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
   const [history, setHistory] = useState<Chat[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const handleViewChange = (view: ViewType) => {
+    if (view === 'admin') {
+      router.push('/admin');
+    } else {
+      setActiveView(view);
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -135,7 +145,7 @@ export default function Home() {
         isOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         activeView={activeView}
-        onViewChange={setActiveView}
+        onViewChange={handleViewChange}
       />
 
       <main className={`relative z-10 flex-1 flex flex-col transition-all duration-300 ease-in-out h-full ${isSidebarOpen ? 'pl-[280px]' : 'pl-0'

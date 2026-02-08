@@ -1,7 +1,8 @@
 import React from 'react';
-import { MessageSquare, Database, Brain, Wrench, PanelLeftClose, PanelLeft, Search, Share2, RotateCcw, BoxSelect, X } from 'lucide-react';
+import { MessageSquare, Database, Brain, Wrench, Shield, PanelLeftClose, PanelLeft } from 'lucide-react';
+import Link from 'next/link';
 
-export type ViewType = 'chat' | 'knowledge' | 'memory' | 'tools';
+export type ViewType = 'chat' | 'knowledge' | 'memory' | 'tools' | 'admin';
 
 interface SidebarProps {
     isOpen: boolean;
@@ -21,6 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         { id: 'knowledge', label: 'Knowledge', icon: <Database className="w-5 h-5" /> },
         { id: 'memory', label: 'Memory', icon: <Brain className="w-5 h-5" /> },
         { id: 'tools', label: 'Tools', icon: <Wrench className="w-5 h-5" /> },
+        { id: 'admin', label: 'Admin', icon: <Shield className="w-5 h-5" /> },
     ] as const;
 
     return (
@@ -57,8 +59,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 key={item.id}
                                 onClick={() => onViewChange(item.id as ViewType)}
                                 className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-200 group ${activeView === item.id
-                                        ? 'bg-[#1a1a1a] text-white shadow-[0_4px_20px_rgba(0,0,0,0.5)]'
-                                        : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
+                                    ? 'bg-[#1a1a1a] text-white shadow-[0_4px_20px_rgba(0,0,0,0.5)]'
+                                    : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
                                     }`}
                             >
                                 <div className={`${activeView === item.id ? 'text-white' : 'text-gray-600 group-hover:text-gray-400'}`}>

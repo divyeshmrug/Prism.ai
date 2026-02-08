@@ -1,26 +1,93 @@
-export const mockAnalytics = {
-    conversion: {
-        current: 3.2,
-        previous: 4.1,
-        trend: 'down',
-        steps: [
-            { name: 'View Products', rate: 100 },
-            { name: 'Add to Cart', rate: 25 },
-            { name: 'Checkout Start', rate: 12 },
-            { name: 'Purchase Complete', rate: 3.2 },
-        ]
+// Mock data for admin panel development
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: 'user' | 'admin';
+    status: 'active' | 'inactive';
+    createdAt: Date;
+    lastActive: Date;
+}
+
+export interface AdminSettings {
+    theme: 'dark' | 'light';
+    adminEmail: string;
+    globalAnnouncement: string;
+    maintenanceMode: boolean;
+}
+
+export interface DashboardStats {
+    totalUsers: number;
+    activeSessions: number;
+    systemStatus: 'Healthy' | 'Warning' | 'Critical';
+}
+
+export const mockUsers: User[] = [
+    {
+        id: '1',
+        name: 'gandu_suro',
+        email: 'raconleader@gmail.com',
+        role: 'admin',
+        status: 'active',
+        createdAt: new Date('2026-02-01'),
+        lastActive: new Date()
     },
-    retention: {
-        d1: 45,
-        d7: 18,
-        d30: 5,
+    {
+        id: '2',
+        name: 'pado',
+        email: 'manav@example.com',
+        role: 'user',
+        status: 'active',
+        createdAt: new Date('2026-02-02'),
+        lastActive: new Date()
     },
-    frictionPoints: [
-        { page: '/checkout', issue: 'Long form validation error', impact: 'High' },
-        { page: '/login', issue: 'Password reset loop', impact: 'Medium' },
-    ],
-    sessions: [
-        { id: '1', user: 'User 102', duration: '5:20', sentiment: 'Frustrated', exitPage: '/checkout' },
-        { id: '2', user: 'User 405', duration: '2:15', sentiment: 'Satisfied', exitPage: '/confirmation' },
-    ]
+    {
+        id: '3',
+        name: 'sd',
+        email: 'dasd@example.com',
+        role: 'user',
+        status: 'active',
+        createdAt: new Date('2026-02-03'),
+        lastActive: new Date()
+    },
+    {
+        id: '4',
+        name: 'asd',
+        email: 'soham@example.com',
+        role: 'user',
+        status: 'active',
+        createdAt: new Date('2026-02-04'),
+        lastActive: new Date()
+    },
+    {
+        id: '5',
+        name: 'Soham',
+        email: 'soham123@gmail.com',
+        role: 'user',
+        status: 'active',
+        createdAt: new Date('2026-02-05'),
+        lastActive: new Date()
+    },
+    {
+        id: '6',
+        name: 'sdv',
+        email: 'a@GMAIL.COM',
+        role: 'user',
+        status: 'inactive',
+        createdAt: new Date('2026-02-06'),
+        lastActive: new Date('2026-02-07')
+    }
+];
+
+export const mockStats: DashboardStats = {
+    totalUsers: 138,
+    activeSessions: 18,
+    systemStatus: 'Healthy'
+};
+
+export const mockSettings: AdminSettings = {
+    theme: 'dark',
+    adminEmail: 'admin@prism.ai',
+    globalAnnouncement: '',
+    maintenanceMode: false
 };
