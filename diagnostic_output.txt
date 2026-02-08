@@ -1,0 +1,69 @@
+[dotenv@17.2.4] injecting env (1) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+Starting diagnostic test...
+Testing [gemini-1.5-flash] with [v1]...
+❌ FAILED: [gemini-1.5-flash] with [v1] - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Testing [gemini-1.5-flash] with [v1beta]...
+❌ FAILED: [gemini-1.5-flash] with [v1beta] - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Testing [gemini-1.5-flash-latest] with [v1]...
+❌ FAILED: [gemini-1.5-flash-latest] with [v1] - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent: [404 Not Found] models/gemini-1.5-flash-latest is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Testing [gemini-1.5-flash-latest] with [v1beta]...
+❌ FAILED: [gemini-1.5-flash-latest] with [v1beta] - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent: [404 Not Found] models/gemini-1.5-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Testing [gemini-1.5-pro] with [v1]...
+❌ FAILED: [gemini-1.5-pro] with [v1] - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Testing [gemini-1.5-pro] with [v1beta]...
+❌ FAILED: [gemini-1.5-pro] with [v1beta] - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Testing [gemini-pro] with [v1]...
+❌ FAILED: [gemini-pro] with [v1] - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent: [404 Not Found] models/gemini-pro is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Testing [gemini-pro] with [v1beta]...
+❌ FAILED: [gemini-pro] with [v1beta] - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent: [404 Not Found] models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Testing [gemini-1.0-pro] with [v1]...
+❌ FAILED: [gemini-1.0-pro] with [v1] - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro:generateContent: [404 Not Found] models/gemini-1.0-pro is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Testing [gemini-1.0-pro] with [v1beta]...
+❌ FAILED: [gemini-1.0-pro] with [v1beta] - [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent: [404 Not Found] models/gemini-1.0-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+No common models worked. Attempting to list all models...
+Available models for this key:
+ - models/gemini-2.5-flash (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-2.5-pro (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-2.0-flash (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-2.0-flash-001 (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-2.0-flash-exp-image-generation (generateContent, countTokens, bidiGenerateContent)
+ - models/gemini-2.0-flash-lite-001 (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-2.0-flash-lite (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-exp-1206 (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-2.5-flash-preview-tts (countTokens, generateContent)
+ - models/gemini-2.5-pro-preview-tts (countTokens, generateContent, batchGenerateContent)
+ - models/gemma-3-1b-it (generateContent, countTokens)
+ - models/gemma-3-4b-it (generateContent, countTokens)
+ - models/gemma-3-12b-it (generateContent, countTokens)
+ - models/gemma-3-27b-it (generateContent, countTokens)
+ - models/gemma-3n-e4b-it (generateContent, countTokens)
+ - models/gemma-3n-e2b-it (generateContent, countTokens)
+ - models/gemini-flash-latest (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-flash-lite-latest (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-pro-latest (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-2.5-flash-lite (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-2.5-flash-image (generateContent, countTokens, batchGenerateContent)
+ - models/gemini-2.5-flash-preview-09-2025 (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-2.5-flash-lite-preview-09-2025 (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-3-pro-preview (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-3-flash-preview (generateContent, countTokens, createCachedContent, batchGenerateContent)
+ - models/gemini-3-pro-image-preview (generateContent, countTokens, batchGenerateContent)
+ - models/nano-banana-pro-preview (generateContent, countTokens, batchGenerateContent)
+ - models/gemini-robotics-er-1.5-preview (generateContent, countTokens)
+ - models/gemini-2.5-computer-use-preview-10-2025 (generateContent, countTokens)
+ - models/deep-research-pro-preview-12-2025 (generateContent, countTokens)
+ - models/gemini-embedding-001 (embedContent, countTextTokens, countTokens, asyncBatchEmbedContent)
+ - models/aqa (generateAnswer)
+ - models/imagen-4.0-generate-preview-06-06 (predict)
+ - models/imagen-4.0-ultra-generate-preview-06-06 (predict)
+ - models/imagen-4.0-generate-001 (predict)
+ - models/imagen-4.0-ultra-generate-001 (predict)
+ - models/imagen-4.0-fast-generate-001 (predict)
+ - models/veo-2.0-generate-001 (predictLongRunning)
+ - models/veo-3.0-generate-001 (predictLongRunning)
+ - models/veo-3.0-fast-generate-001 (predictLongRunning)
+ - models/veo-3.1-generate-preview (predictLongRunning)
+ - models/veo-3.1-fast-generate-preview (predictLongRunning)
+ - models/gemini-2.5-flash-native-audio-latest (countTokens, bidiGenerateContent)
+ - models/gemini-2.5-flash-native-audio-preview-09-2025 (countTokens, bidiGenerateContent)
+ - models/gemini-2.5-flash-native-audio-preview-12-2025 (countTokens, bidiGenerateContent)

@@ -1,309 +1,174 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import Sidebar from '@/components/Sidebar';
-import Loader from '@/components/Loader';
-import { mockAnalytics } from '@/lib/mockData';
-import styles from './page.module.css';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import Sidebar, { ViewType } from '@/components/Sidebar';
+import ChatMessage from '@/components/ChatMessage';
+import ChatInput from '@/components/ChatInput';
+import EmptyState from '@/components/EmptyState';
+import KnowledgeBase from '@/components/KnowledgeBase';
 
-type Message = {
+interface Message {
   role: 'user' | 'prism';
   content: string;
-  insight?: {
-    type: 'funnel' | 'stats' | 'friction';
-    data: any;
-  };
-};
+  isStreaming?: boolean;
+}
 
-type ChatSession = {
+interface Chat {
   id: string;
   title: string;
+  timestamp: number;
   messages: Message[];
-};
+}
 
 export default function Home() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [activeView, setActiveView] = useState<ViewType>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const [history, setHistory] = useState<ChatSession[]>([]);
-  const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [shared, setShared] = useState(false);
-  const [isThinking, setIsThinking] = useState(false);
-  const [thinkingMessage, setThinkingMessage] = useState('');
+  const [history, setHistory] = useState<Chat[]>([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Load history from localStorage on mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('prism_history_v2');
+    if (savedHistory) {
+      const parsed = JSON.parse(savedHistory);
+      setHistory(parsed);
+    }
+  }, []);
+
+  // Save history to localStorage
+  useEffect(() => {
+    localStorage.setItem('prism_history_v2', JSON.stringify(history));
+  }, [history]);
+
+  // Autoscroll
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  const handleNewChat = () => {
-    setMessages([]);
-    setInput('');
-    setActiveChatId(null);
-  };
+  const handleSendMessage = async (text: string, files: File[] = []) => {
+    if (!text.trim() && files.length === 0) return;
 
-  const handleLoadChat = (id: string) => {
-    const chatToLoad = history.find(chat => chat.id === id);
-    if (chatToLoad) {
-      setMessages(chatToLoad.messages);
-      setActiveChatId(chatToLoad.id);
-    }
-  };
+    const userMessage: Message = { role: 'user', content: text };
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
 
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem('prism_auth') === 'true';
-    if (!isLoggedIn) {
-      router.push('/login');
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [router]);
-
-  const submitMessage = (text: string) => {
-    if (!text.trim()) return;
-
-    setMessages(prev => [...prev, { role: 'user', content: text }]);
-    setIsThinking(true);
-
-    // Cycle through thinking phases
-    const phases = ["Thinking...", "Analyzing data patterns...", "Retrieving insights...", "Synthesizing response..."];
-    let phaseIdx = 0;
-    setThinkingMessage(phases[0]);
-
-    const interval = setInterval(() => {
-      phaseIdx++;
-      if (phaseIdx < phases.length) {
-        setThinkingMessage(phases[phaseIdx]);
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+      if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
+        throw new Error("API Key not found. Please add your Gemini API key in Settings or .env.local");
       }
-    }, 600);
 
-    const lowerText = text.toLowerCase();
-    let responseText = "I'm Prizm AI. I can help analyzing your product data.";
-    let insight: Message['insight'] = undefined;
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" }, { apiVersion: 'v1beta' });
 
-    if (lowerText.includes('conversion') || lowerText.includes('drop-off')) {
-      responseText = "Based on recent data, your checkout conversion rate is 3.2%, which is down 0.9% from last week.";
-      insight = {
-        type: 'funnel',
-        data: mockAnalytics.conversion
-      };
-    } else if (lowerText.includes('friction') || lowerText.includes('mobile')) {
-      responseText = "I've identified 2 high-impact friction points affecting your mobile users.";
-      insight = {
-        type: 'friction',
-        data: mockAnalytics.frictionPoints
-      };
-    } else if (lowerText.includes('session') || lowerText.includes('summarize')) {
-      responseText = "I've summarized 50 recent sessions. Common patterns include frustration on the checkout page.";
-      insight = {
-        type: 'stats',
-        data: [
-          { label: 'Avg Duration', value: '4:15', trend: 'down', trendVal: '12%' },
-          { label: 'Frustration Rate', value: '18%', trend: 'up', trendVal: '5%' },
-        ]
-      };
-    }
+      const prompt = `You are Prizm AI, a product analysis expert. The user is asking: "${text}"`;
+      const result = await model.generateContentStream(prompt);
 
-    setTimeout(() => {
-      clearInterval(interval);
-      setIsThinking(false);
+      let fullContent = "";
+      const assistantMessage: Message = { role: 'prism', content: "", isStreaming: true };
+      setMessages(prev => [...prev, assistantMessage]);
 
-      const aiResponse: Message = {
-        role: 'prism',
-        content: responseText,
-        insight
-      };
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        fullContent += chunkText;
+        setMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1] = { role: 'prism', content: fullContent, isStreaming: true };
+          return newMessages;
+        });
+      }
 
       setMessages(prev => {
-        const newMessages = [...prev, aiResponse];
-
-        // Update history
-        setHistory(prevHistory => {
-          const currentChatId = activeChatId || Date.now().toString();
-          if (!activeChatId) setActiveChatId(currentChatId);
-
-          const existingChatIndex = prevHistory.findIndex(chat => chat.id === currentChatId);
-          const firstUserMsg = newMessages.find(m => m.role === 'user');
-          const title = firstUserMsg ? firstUserMsg.content : 'New Chat';
-
-          if (existingChatIndex !== -1) {
-            const updatedHistory = [...prevHistory];
-            updatedHistory[existingChatIndex] = { ...updatedHistory[existingChatIndex], messages: newMessages, title };
-            return updatedHistory;
-          } else {
-            return [{ id: currentChatId, title, messages: newMessages }, ...prevHistory];
-          }
-        });
-
+        const newMessages = [...prev];
+        newMessages[newMessages.length - 1] = { role: 'prism', content: fullContent, isStreaming: false };
         return newMessages;
       });
-    }, 2400);
 
-    setInput('');
+    } catch (error: any) {
+      console.error("Gemini Error:", error);
+      setMessages(prev => [...prev, { role: 'prism', content: `Sorry, I encountered an error: ${error.message}` }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSend = (e: React.FormEvent) => {
-    e.preventDefault();
-    submitMessage(input);
+  const onNewChat = () => {
+    // setActiveChatId(null); // This state is removed
+    setMessages([]);
   };
 
-  const renderInsight = (insight: Message['insight']) => {
-    if (!insight) return null;
-
-    if (insight.type === 'funnel') {
-      return (
-        <div className={styles.insightCard}>
-          <div className={styles.insightTitle}>Checkout Funnel Analysis</div>
-          <div className={styles.funnelChart}>
-            {insight.data.steps.map((step: any, i: number) => (
-              <div key={i} className={styles.funnelStep}>
-                <div className={styles.funnelLabel}>
-                  <span>{step.name}</span>
-                  <span>{step.rate}%</span>
-                </div>
-                <div className={styles.funnelBarBg}>
-                  <div className={styles.funnelBar} style={{ width: `${step.rate}%` }}></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
+  const onSelectChat = (id: string) => {
+    const chat = history.find(c => c.id === id);
+    if (chat) {
+      // setActiveChatId(id); // This state is removed
+      setMessages(chat.messages);
     }
-
-    if (insight.type === 'stats') {
-      return (
-        <div className={styles.insightCard}>
-          <div className={styles.statGrid}>
-            {insight.data.map((stat: any, i: number) => (
-              <div key={i} className={styles.statItem}>
-                <span className={styles.statLabel}>{stat.label}</span>
-                <span className={styles.statValue}>{stat.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    if (insight.type === 'friction') {
-      return (
-        <div className={styles.insightCard}>
-          <div className={styles.insightTitle}>Top Friction Points</div>
-          <div className={styles.frictionList}>
-            {insight.data.map((item: any, i: number) => (
-              <div key={i} className={styles.frictionItem}>
-                <div className={styles.frictionInfo}>
-                  <span className={styles.frictionPage}>{item.page}</span>
-                  <span className={styles.frictionIssue}>{item.issue}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    return null;
   };
 
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <Sidebar />
-        <main className={styles.main}>
-          <Loader />
-        </main>
-      </div>
-    );
-  }
+  const onDeleteChat = (id: string) => {
+    setHistory(prev => prev.filter(c => c.id !== id));
+    // if (activeChatId === id) { // This state is removed
+    //   onNewChat();
+    // }
+  };
+
+  const onRenameChat = (id: string, newTitle: string) => {
+    setHistory(prev => prev.map(c => c.id === id ? { ...c, title: newTitle } : c));
+  };
 
   return (
-    <div className={styles.container}>
-      <Sidebar onNewChat={handleNewChat} onLoadChat={handleLoadChat} history={history} />
-      <main className={styles.main}>
-        <header className={styles.header}>
-          <div className={styles.modelSelector}>
-            <span>Home</span>
-            <span style={{ fontSize: '0.7rem', marginLeft: '0.5rem' }}>▼</span>
-          </div>
+    <div className="flex h-screen bg-black text-white selection:bg-primary/30 overflow-hidden">
+      {/* Premium Background Layer */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#1a1a1a_0%,_transparent_50%)]" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150" />
+      </div>
 
-        </header>
+      <Sidebar
+        isOpen={isSidebarOpen}
+        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        activeView={activeView}
+        onViewChange={setActiveView}
+      />
 
-        <div className={styles.chatArea}>
-          {messages.length === 0 ? (
-            <div className={styles.emptyState}>
-              <h1 className={styles.heroTitle}>Get The Theme You Want For Growth</h1>
-              <p className={styles.heroSubtitle}>Prizm AI: Analysis-Powered Product Insights and recommendation System</p>
-
-              <div className={styles.examplesGrid}>
-                <div className={styles.exampleBtn} onClick={() => submitMessage("Analyze drop-off rates on checkout")}>
-                  <span>Analyze drop-off rates on checkout</span>
-                  <div className={styles.getThisBtn}>Get This ↗</div>
-                </div>
-                <div className={styles.exampleBtn} onClick={() => submitMessage("Show me friction points for mobile users")}>
-                  <span>Show me friction points for mobile users</span>
-                  <div className={styles.getThisBtn}>Get This ↗</div>
-                </div>
-                <div className={styles.exampleBtn} onClick={() => submitMessage("Summarize recent session replays")}>
-                  <span>Summarize recent session replays</span>
-                  <div className={styles.getThisBtn}>Get This ↗</div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className={styles.messageList}>
-              {messages.map((msg, idx) => (
-                <div key={idx} className={`${styles.message} ${msg.role === 'prism' ? styles.messagePrism : styles.messageUser}`}>
-                  <div className={styles.messageContent}>
-                    <p>{msg.content}</p>
-                    {renderInsight(msg.insight)}
-                  </div>
-                </div>
-              ))}
-              {isThinking && (
-                <div className={`${styles.message} ${styles.messagePrism}`}>
-                  <div className={styles.messageContent}>
-                    <div className={styles.thinking}>
-                      <span className={styles.thinkingIcon}></span>
-                      {thinkingMessage}
-                    </div>
-                  </div>
-                </div>
+      <main className={`relative z-10 flex-1 flex flex-col transition-all duration-300 ease-in-out h-full ${isSidebarOpen ? 'pl-[280px]' : 'pl-0'
+        }`}>
+        {activeView === 'chat' ? (
+          <div className="flex-1 flex flex-col relative overflow-hidden">
+            <div className="flex-1 overflow-y-auto pt-20 pb-10 scroll-smooth custom-scrollbar">
+              {messages.length === 0 ? (
+                <EmptyState onSelectPrompt={(p) => handleSendMessage(p, [])} />
+              ) : (
+                <>
+                  {messages.map((msg, i) => (
+                    <ChatMessage key={i} {...msg} />
+                  ))}
+                  <div ref={messagesEndRef} />
+                </>
               )}
-              <div ref={messagesEndRef} />
-            </div >
-          )
-          }
-        </div >
+            </div>
 
-        <div className={styles.inputArea}>
-          <form onSubmit={handleSend} className={styles.inputWrapper}>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Search theme, API, Application..."
-              className={styles.chatInput}
-            />
-            <button type="submit" className={styles.sendButton} disabled={!input.trim()}>
-              Search Now
-            </button>
-          </form>
-          <p className={styles.disclaimer}>Prizm AI can make mistakes. Consider checking important info.</p>
-        </div>
-      </main >
-    </div >
+            <div className="shrink-0 w-full mt-auto">
+              <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+            </div>
+          </div>
+        ) : activeView === 'knowledge' ? (
+          <div className="flex-1 flex flex-col pt-16 overflow-y-auto">
+            <KnowledgeBase />
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-gray-500 font-medium">
+            <p className="text-xl italic">The {activeView} module is under development.</p>
+          </div>
+        )}
+      </main>
+    </div>
   );
 }

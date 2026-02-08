@@ -19,11 +19,16 @@ export default function Settings() {
     const [tempProfile, setTempProfile] = useState({ ...profile });
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [error, setError] = useState('');
+    const [geminiKey, setGeminiKey] = useState('');
+    const [showKey, setShowKey] = useState(false);
 
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         setTheme(savedTheme);
         document.documentElement.setAttribute('data-theme', savedTheme);
+
+        const savedKey = localStorage.getItem('prism_gemini_api_key') || '';
+        setGeminiKey(savedKey);
 
         // Refresh profile from localStorage in case it changed
         const currentProfile = {
@@ -34,6 +39,12 @@ export default function Settings() {
         };
         setProfile(currentProfile);
     }, []);
+
+    const handleKeySave = () => {
+        localStorage.setItem('prism_gemini_api_key', geminiKey);
+        setIsSaving(true);
+        setTimeout(() => setIsSaving(false), 2000);
+    };
 
     const generateSuggestions = (fullName: string) => {
         if (!fullName.trim()) {
@@ -237,6 +248,45 @@ export default function Settings() {
                                     <button className={styles.editButton} onClick={handleEdit}>Edit</button>
                                 </>
                             )}
+                        </div>
+                    </div>
+                </section>
+
+                <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>AI Configuration</h2>
+                    <div className={styles.card}>
+                        <div className={styles.settingRow} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                                <span>Gemini API Key</span>
+                                <button
+                                    className={styles.saveButton}
+                                    style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}
+                                    onClick={handleKeySave}
+                                >
+                                    {isSaving ? 'Saved!' : 'Save Key'}
+                                </button>
+                            </div>
+                            <div className={styles.keyInputWrapper} style={{ width: '100%', display: 'flex', gap: '0.5rem' }}>
+                                <input
+                                    type={showKey ? "text" : "password"}
+                                    className={styles.editInput}
+                                    style={{ flex: 1 }}
+                                    value={geminiKey}
+                                    onChange={(e) => setGeminiKey(e.target.value)}
+                                    placeholder="Enter your Gemini API key..."
+                                />
+                                <button
+                                    className={styles.editButton}
+                                    onClick={() => setShowKey(!showKey)}
+                                    style={{ padding: '0.5rem' }}
+                                >
+                                    {showKey ? 'Hide' : 'Show'}
+                                </button>
+                            </div>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                Your key is stored locally in your browser and never sent to our servers.
+                                Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)' }}>Google AI Studio</a>.
+                            </p>
                         </div>
                     </div>
                 </section>
