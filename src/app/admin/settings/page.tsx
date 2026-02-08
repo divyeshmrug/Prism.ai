@@ -1,25 +1,58 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { mockSettings, AdminSettings } from '@/lib/mockData';
-import { Save, LogOut } from 'lucide-react';
+import { Save, LogOut, Loader2 } from 'lucide-react';
+import { useToast } from '@/components/ToastProvider';
 
 export default function AdminSettingsPage() {
+    const { showToast } = useToast();
     const [settings, setSettings] = useState<AdminSettings>(mockSettings);
-    const [saved, setSaved] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-    const handleSave = () => {
-        // In a real app, this would save to backend/localStorage
-        localStorage.setItem('adminSettings', JSON.stringify(settings));
-        setSaved(true);
-        setTimeout(() => setSaved(false), 3000);
+    // Load settings from localStorage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('adminSettings');
+        if (saved) {
+            try {
+                setSettings(JSON.parse(saved));
+            } catch (e) {
+                showToast('Failed to load saved settings', 'error');
+            }
+        }
+    }, [showToast]);
+
+    const handleSave = async () => {
+        setIsSaving(true);
+
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        try {
+            localStorage.setItem('adminSettings', JSON.stringify(settings));
+            setIsSaving(false);
+            showToast('Settings saved successfully', 'success');
+        } catch (e) {
+            setIsSaving(false);
+            showToast('Failed to save settings', 'error');
+        }
     };
 
-    const handleLogout = () => {
-        if (confirm('Are you sure you want to logout?')) {
-            // In a real app, this would clear session and redirect
+    const handleLogout = async () => {
+        if (!confirm('Are you sure you want to logout?')) return;
+
+        setIsLoggingOut(true);
+
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        showToast('Logged out successfully', 'info');
+
+        // In a real app, this would clear session and redirect
+        setTimeout(() => {
             window.location.href = '/';
-        }
+        }, 1500);
     };
 
     return (
@@ -38,7 +71,8 @@ export default function AdminSettingsPage() {
                     <select
                         value={settings.theme}
                         onChange={(e) => setSettings({ ...settings, theme: e.target.value as 'dark' | 'light' })}
-                        className="w-full bg-[#111] border border-white/10 rounded-2xl py-4 px-6 text-white focus:border-primary/50 transition-all outline-none"
+                        disabled={isSaving}
+                        className="w-full bg-[#111] border border-white/10 rounded-2xl py-4 px-6 text-white focus:border-primary/50 transition-all outline-none disabled:opacity-50"
                     >
                         <option value="dark">Dark</option>
                         <option value="light">Light</option>
@@ -52,8 +86,9 @@ export default function AdminSettingsPage() {
                         type="email"
                         value={settings.adminEmail}
                         onChange={(e) => setSettings({ ...settings, adminEmail: e.target.value })}
+                        disabled={isSaving}
                         placeholder="admin@example.com"
-                        className="w-full bg-[#111] border border-white/10 rounded-2xl py-4 px-6 text-white placeholder-gray-600 focus:border-primary/50 transition-all outline-none"
+                        className="w-full bg-[#111] border border-white/10 rounded-2xl py-4 px-6 text-white placeholder-gray-600 focus:border-primary/50 transition-all outline-none disabled:opacity-50"
                     />
                 </div>
 
@@ -63,9 +98,10 @@ export default function AdminSettingsPage() {
                     <textarea
                         value={settings.globalAnnouncement}
                         onChange={(e) => setSettings({ ...settings, globalAnnouncement: e.target.value })}
+                        disabled={isSaving}
                         placeholder="Enter message for all users..."
                         rows={4}
-                        className="w-full bg-[#111] border border-white/10 rounded-2xl py-4 px-6 text-white placeholder-gray-600 focus:border-primary/50 transition-all outline-none resize-none"
+                        className="w-full bg-[#111] border border-white/10 rounded-2xl py-4 px-6 text-white placeholder-gray-600 focus:border-primary/50 transition-all outline-none resize-none disabled:opacity-50"
                     />
                 </div>
 
@@ -77,7 +113,8 @@ export default function AdminSettingsPage() {
                     </div>
                     <button
                         onClick={() => setSettings({ ...settings, maintenanceMode: !settings.maintenanceMode })}
-                        className={`relative w-16 h-8 rounded-full transition-all ${settings.maintenanceMode ? 'bg-primary' : 'bg-gray-700'
+                        disabled={isSaving}
+                        className={`relative w-16 h-8 rounded-full transition-all disabled:opacity-50 ${settings.maintenanceMode ? 'bg-primary' : 'bg-gray-700'
                             }`}
                     >
                         <div className={`absolute top-1 left-1 w-6 h-6 bg-black rounded-full transition-transform ${settings.maintenanceMode ? 'translate-x-8' : 'translate-x-0'
@@ -88,10 +125,20 @@ export default function AdminSettingsPage() {
                 {/* Save Button */}
                 <button
                     onClick={handleSave}
-                    className="w-full py-5 bg-primary hover:bg-primary/90 text-black font-bold rounded-2xl transition-all flex items-center justify-center gap-3"
+                    disabled={isSaving}
+                    className="w-full py-5 bg-primary hover:bg-primary/90 text-black font-bold rounded-2xl transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                 >
-                    <Save className="w-5 h-5" />
-                    {saved ? 'Saved!' : 'Save Changes'}
+                    {isSaving ? (
+                        <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            Saving...
+                        </>
+                    ) : (
+                        <>
+                            <Save className="w-5 h-5" />
+                            Save Changes
+                        </>
+                    )}
                 </button>
             </div>
 
@@ -100,10 +147,20 @@ export default function AdminSettingsPage() {
                 <h2 className="text-red-500 text-xl font-bold mb-6 uppercase tracking-wide">Danger Zone</h2>
                 <button
                     onClick={handleLogout}
-                    className="w-full py-5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500 font-bold rounded-2xl transition-all flex items-center justify-center gap-3"
+                    disabled={isLoggingOut}
+                    className="w-full py-5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500 font-bold rounded-2xl transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                 >
-                    <LogOut className="w-5 h-5" />
-                    Log Out
+                    {isLoggingOut ? (
+                        <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            Logging out...
+                        </>
+                    ) : (
+                        <>
+                            <LogOut className="w-5 h-5" />
+                            Log Out
+                        </>
+                    )}
                 </button>
             </div>
         </div>
