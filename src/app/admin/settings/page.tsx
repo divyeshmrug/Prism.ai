@@ -1,27 +1,27 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { mockSettings, AdminSettings } from '@/lib/mockData';
 import { Save, LogOut, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
 
 export default function AdminSettingsPage() {
     const { showToast } = useToast();
-    const [settings, setSettings] = useState<AdminSettings>(mockSettings);
-    const [isSaving, setIsSaving] = useState(false);
-    const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-    // Load settings from localStorage on mount
-    useEffect(() => {
-        const saved = localStorage.getItem('adminSettings');
-        if (saved) {
-            try {
-                setSettings(JSON.parse(saved));
-            } catch (e) {
-                showToast('Failed to load saved settings', 'error');
+    const [settings, setSettings] = useState<AdminSettings>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('adminSettings');
+            if (saved) {
+                try {
+                    return JSON.parse(saved);
+                } catch {
+                    return mockSettings;
+                }
             }
         }
-    }, [showToast]);
+        return mockSettings;
+    });
+    const [isSaving, setIsSaving] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -33,7 +33,7 @@ export default function AdminSettingsPage() {
             localStorage.setItem('adminSettings', JSON.stringify(settings));
             setIsSaving(false);
             showToast('Settings saved successfully', 'success');
-        } catch (e) {
+        } catch {
             setIsSaving(false);
             showToast('Failed to save settings', 'error');
         }

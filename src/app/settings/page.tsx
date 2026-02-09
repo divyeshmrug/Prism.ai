@@ -88,10 +88,11 @@ export default function SettingsPage() {
                 {tabs.map(tab => (
                     <button
                         key={tab.id}
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         onClick={() => setActiveTab(tab.id as any)}
                         className={`flex items-center gap-2 px-6 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeTab === tab.id
-                                ? 'border-purple-500 text-white'
-                                : 'border-transparent text-gray-500 hover:text-gray-300'
+                            ? 'border-purple-500 text-white'
+                            : 'border-transparent text-gray-500 hover:text-gray-300'
                             }`}
                     >
                         {tab.icon}
@@ -174,8 +175,8 @@ export default function SettingsPage() {
                                         key={mode}
                                         onClick={() => setSystemPromptMode(mode)}
                                         className={`p-4 rounded-xl border text-left transition-all ${systemPromptMode === mode
-                                                ? 'bg-blue-500/10 border-blue-500/50 text-white'
-                                                : 'bg-[#111] border-white/5 text-gray-400 hover:border-white/20 hover:text-white'
+                                            ? 'bg-blue-500/10 border-blue-500/50 text-white'
+                                            : 'bg-[#111] border-white/5 text-gray-400 hover:border-white/20 hover:text-white'
                                             }`}
                                     >
                                         <div className="font-bold capitalize mb-1">{mode}</div>

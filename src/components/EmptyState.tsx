@@ -42,6 +42,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onSelectPrompt }) => {
                     >
                         {prompt.image && (
                             <div className="absolute inset-0 opacity-20 grayscale hover:grayscale-0 transition-all">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img src={prompt.image} alt="" className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] to-transparent" />
                             </div>

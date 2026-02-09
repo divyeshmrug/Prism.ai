@@ -27,8 +27,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [state, setState] = useState<{ user: User | null; isLoading: boolean }>({
+        user: null,
+        isLoading: true
+    });
     const router = useRouter();
     const { showToast } = useToast();
 
@@ -37,13 +39,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const storedUser = localStorage.getItem('prism_user_session');
         if (storedUser) {
             try {
-                setUser(JSON.parse(storedUser));
-            } catch (e) {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
+                setState({ user: JSON.parse(storedUser), isLoading: false });
+            } catch {
                 localStorage.removeItem('prism_user_session');
+                setState({ user: null, isLoading: false });
             }
+        } else {
+            setState({ user: null, isLoading: false });
         }
-        setIsLoading(false);
     }, []);
+
+    const { user, isLoading } = state;
+
+    const setUser = (user: User | null) => {
+        setState(prev => ({ ...prev, user }));
+    };
+
+    const setIsLoading = (isLoading: boolean) => {
+        setState(prev => ({ ...prev, isLoading }));
+    };
 
     const login = async (email: string, password: string) => {
         setIsLoading(true);
@@ -84,7 +99,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
     };
 
-    const register = async (name: string, email: string, password: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const register = async (name: string, email: string, _password: string) => {
         setIsLoading(true);
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1000));

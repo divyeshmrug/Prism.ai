@@ -60,6 +60,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, isStreaming, i
                     {images && images.length > 0 && (
                         <div className="flex flex-wrap gap-4 mb-4">
                             {images.map((img, i) => (
+                                /* eslint-disable-next-line @next/next/no-img-element */
                                 <img key={i} src={img} alt="User Upload" className="max-w-xs rounded-xl border border-white/10 shadow-lg hover:scale-105 transition-transform" />
                             ))}
                         </div>
@@ -69,7 +70,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, isStreaming, i
                         <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
                             components={{
-                                code({ node, inline, className, children, ...props }: any) {
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                code({ inline, className, children, ...props }: React.ComponentPropsWithoutRef<'code'> & { inline?: boolean, node?: any }) {
                                     const match = /language-(\w+)/.exec(className || '');
                                     const codeContent = String(children).replace(/\n$/, '');
 

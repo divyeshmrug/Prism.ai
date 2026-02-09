@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from '../login/page.module.css'; // Reusing login styles
 
+const generateVerificationCode = () => Math.floor(100000 + Math.random() * 900000).toString();
+
 export default function Signup() {
     const router = useRouter();
     const [name, setName] = useState('');
@@ -64,16 +66,20 @@ export default function Signup() {
         }
 
         // Check for existing users in localStorage
-        const existingUsers = JSON.parse(localStorage.getItem('prism_registered_users') || '[]');
+        interface StoredUser {
+            email: string;
+            [key: string]: unknown;
+        }
+        const existingUsers: StoredUser[] = JSON.parse(localStorage.getItem('prism_registered_users') || '[]');
 
         // Prevent duplicate emails
-        if (existingUsers.some((u: any) => u.email === email)) {
+        if (existingUsers.some((u) => u.email === email)) {
             setError('An account with this email already exists.');
             return;
         }
 
         // Generate and send verification code (Mock)
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const code = generateVerificationCode();
         setVerificationCode(code);
         setIsVerifying(true);
 

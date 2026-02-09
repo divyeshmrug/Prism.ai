@@ -98,7 +98,7 @@ export default function UserManagement() {
                             {filteredUsers.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="py-12 text-center text-gray-500">
-                                        No users found matching "{searchQuery}"
+                                        No users found matching &quot;{searchQuery}&quot;
                                     </td>
                                 </tr>
                             ) : (
@@ -109,8 +109,8 @@ export default function UserManagement() {
                                         <td className="py-4 px-4 text-gray-300 capitalize">{user.role}</td>
                                         <td className="py-4 px-4">
                                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${user.status === 'active'
-                                                    ? 'bg-green-500/10 text-green-500'
-                                                    : 'bg-gray-500/10 text-gray-500'
+                                                ? 'bg-green-500/10 text-green-500'
+                                                : 'bg-gray-500/10 text-gray-500'
                                                 }`}>
                                                 {user.status}
                                             </span>

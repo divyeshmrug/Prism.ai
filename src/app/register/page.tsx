@@ -19,7 +19,7 @@ export default function RegisterPage() {
         setIsSubmitting(true);
         try {
             await register(name, email, password);
-        } catch (error) {
+        } catch {
             // Error handled in context
         } finally {
             setIsSubmitting(false);

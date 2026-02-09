@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useRouter } from 'next/navigation';
 import Sidebar, { ViewType } from '@/components/Sidebar';
 import ChatMessage from '@/components/ChatMessage';
@@ -9,7 +8,15 @@ import ChatInput, { ChatInputHandle } from '@/components/ChatInput';
 import EmptyState from '@/components/EmptyState';
 import KnowledgeBase from '@/components/KnowledgeBase';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { Mic, MicOff } from 'lucide-react'; // Added Mic, MicOff icons
+
+import { GoogleGenerativeAI, Part } from "@google/generative-ai";
+interface KnowledgeItem {
+  id: string;
+  name: string;
+  status: string;
+  content: string;
+  [key: string]: unknown;
+}
 
 interface Message {
   role: 'user' | 'prism';
@@ -166,8 +173,8 @@ export default function Home() {
     }
   };
 
-  const handleSendMessage = async (text: string, files: File[] = []) => {
-    if (!text.trim() && files.length === 0) return;
+  const handleSendMessage = async (text: string, files: File[] = [], existingImages: string[] = []) => {
+    if (!text.trim() && files.length === 0 && existingImages.length === 0) return;
 
     // Separate images from other files
     const imageFiles = files.filter(f => f.type.startsWith('image/'));
@@ -180,7 +187,8 @@ export default function Home() {
         reader.readAsDataURL(file);
       });
     });
-    const images = await Promise.all(imagePromises);
+    const newImages = await Promise.all(imagePromises);
+    const images = [...existingImages, ...newImages];
 
     const userMessage: Message = { role: 'user', content: text, images };
     const updatedMessages = [...messages, userMessage];
@@ -202,10 +210,10 @@ export default function Home() {
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Use 1.5 Flash for multimodal
 
       // Build Prompt Parts
-      const promptParts: any[] = [];
+      const promptParts: Part[] = [];
 
       // Add text
-      if (text) promptParts.push(text);
+      if (text) promptParts.push({ text });
 
       // Add images
       for (const image of images) {
@@ -223,17 +231,18 @@ export default function Home() {
 
       // Add Knowledge Base Context if no images (Context + Images can maximize token limits, keep simple for now)
       // Or include it as text part
-      const knowledgeItems = JSON.parse(localStorage.getItem('prism_knowledge_base') || '[]');
+      // Add Knowledge Base Context
+      const knowledgeItems: KnowledgeItem[] = JSON.parse(localStorage.getItem('prism_knowledge_base') || '[]');
       const context = knowledgeItems
-        .filter((item: any) => item.status === 'indexed' && item.content)
-        .map((item: any) => `[Document: ${item.name}]\n${item.content}`)
+        .filter((item) => item.status === 'indexed' && item.content)
+        .map((item) => `[Document: ${item.name}]\n${item.content}`)
         .join('\n\n');
 
       if (context) {
-        promptParts.unshift(`CONTEXT:\n${context}\n\n`);
+        promptParts.unshift({ text: `CONTEXT:\n${context}\n\n` });
       }
 
-      promptParts.unshift("You are Prizm AI. Analyze the input. If images are provided, describe them or answer questions about them.");
+      promptParts.unshift({ text: "You are Prizm AI. Analyze the input. If images are provided, describe them or answer questions about them." });
 
       const result = await model.generateContentStream(promptParts);
 
@@ -255,9 +264,10 @@ export default function Home() {
       setMessages(finalMessages);
       updateChatHistory(finalMessages);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Gemini Error:", error);
-      const errorMsg = { role: 'prism', content: `Sorry, I encountered an error: ${error.message}` } as Message;
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      const errorMsg = { role: 'prism', content: `Sorry, I encountered an error: ${errorMessage}` } as Message;
       const finalMessages = [...updatedMessages, errorMsg];
       setMessages(finalMessages);
       updateChatHistory(finalMessages);

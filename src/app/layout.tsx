@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/components/AuthContext';
 import { ToastProvider } from '@/components/ToastProvider';
-import { Inter, Outfit } from 'next/font/google';
+import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'] });
-const outfit = Outfit({ subsets: ['latin'] });
+
 
 export const metadata: Metadata = {
   title: "Prizm.ai - Intelligent Product Analysis",

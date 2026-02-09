@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MessageSquare, Database, Brain, Wrench, Shield, PanelLeftClose, PanelLeft, Plus, MessageCircle, Trash2, Edit2, X, Check, Download, Sun, Moon } from 'lucide-react';
 import Link from 'next/link';
 

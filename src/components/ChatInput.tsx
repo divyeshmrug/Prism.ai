@@ -1,5 +1,5 @@
 import React, { useState, useRef, useImperativeHandle, forwardRef } from 'react';
-import { Send, Mic, Paperclip, X, FileText } from 'lucide-react';
+import { Mic, Paperclip, X } from 'lucide-react';
 import { useSpeechToText } from '../hooks/useSpeechToText';
 
 interface ChatInputProps {
@@ -75,7 +75,7 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onSendMessage, 
                         <div key={i} className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full group transition-all hover:bg-white/10">
                             <span className="text-xs text-gray-300 truncate max-w-[150px]">{file.name}</span>
                             <button
-                                onClick={() => setFiles(f => f.filter((_, idx) => idx !== i))}
+                                onClick={() => removeFile(i)}
                                 className="hover:text-red-400 transition-colors"
                             >
                                 <X className="w-3 h-3" />
@@ -102,7 +102,7 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onSendMessage, 
                         className="hidden"
                         multiple
                         accept="image/*,application/pdf,text/plain,.md,.csv"
-                        onChange={(e) => setFiles(p => [...p, ...Array.from(e.target.files || [])])}
+                        onChange={handleFileChange}
                     />
                 </button>
 
@@ -110,7 +110,7 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onSendMessage, 
                     ref={inputRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+                    onKeyDown={onKeyDown}
                     placeholder="Search, ask, upload anything..."
                     className="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder-gray-500 text-lg px-4"
                 />
