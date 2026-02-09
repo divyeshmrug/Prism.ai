@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { atomDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { Copy, Check, RotateCcw, Volume2, User, Bot } from 'lucide-react';
+import CodeBlock from './CodeBlock';
 
 interface ChatMessageProps {
     role: 'user' | 'prism';
     content: string;
     isStreaming?: boolean;
+    images?: string[];
+    onRegenerate?: () => void;
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, isStreaming }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, isStreaming, images, onRegenerate }) => {
+
     const [copied, setCopied] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(content);
@@ -21,8 +24,27 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, isStreaming })
     };
 
     const handleTTS = () => {
+        if (isSpeaking) {
+            window.speechSynthesis.cancel();
+            setIsSpeaking(false);
+            return;
+        }
+
+        // Cancel any other current speech
+        window.speechSynthesis.cancel();
+
         const utterance = new SpeechSynthesisUtterance(content);
+
+        // Optional: Select a preferred voice
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) || voices[0];
+        if (preferredVoice) utterance.voice = preferredVoice;
+
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
+
         window.speechSynthesis.speak(utterance);
+        setIsSpeaking(true);
     };
 
     return (
@@ -34,34 +56,30 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, isStreaming })
                 </div>
 
                 <div className="flex-1 space-y-2 overflow-hidden">
+                    {/* Image Grid */}
+                    {images && images.length > 0 && (
+                        <div className="flex flex-wrap gap-4 mb-4">
+                            {images.map((img, i) => (
+                                <img key={i} src={img} alt="User Upload" className="max-w-xs rounded-xl border border-white/10 shadow-lg hover:scale-105 transition-transform" />
+                            ))}
+                        </div>
+                    )}
+
                     <div className="prose prose-invert max-w-none">
                         <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
                             components={{
                                 code({ node, inline, className, children, ...props }: any) {
                                     const match = /language-(\w+)/.exec(className || '');
+                                    const codeContent = String(children).replace(/\n$/, '');
+
                                     return !inline && match ? (
-                                        <div className="relative group rounded-lg overflow-hidden my-4">
-                                            <div className="absolute right-2 top-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button
-                                                    onClick={() => navigator.clipboard.writeText(String(children).replace(/\n$/, ''))}
-                                                    className="p-1.5 bg-white/10 hover:bg-white/20 rounded-md border border-white/10"
-                                                >
-                                                    <Copy className="w-4 h-4 text-white" />
-                                                </button>
-                                            </div>
-                                            <SyntaxHighlighter
-                                                style={atomDark}
-                                                language={match[1]}
-                                                PreTag="div"
-                                                className="!m-0 !bg-neutral-900"
-                                                {...props}
-                                            >
-                                                {String(children).replace(/\n$/, '')}
-                                            </SyntaxHighlighter>
-                                        </div>
+                                        <CodeBlock
+                                            language={match[1]}
+                                            value={codeContent}
+                                        />
                                     ) : (
-                                        <code className="bg-white/10 px-1.5 py-0.5 rounded text-primary" {...props}>
+                                        <code className="bg-white/10 px-1.5 py-0.5 rounded text-primary font-mono text-sm" {...props}>
                                             {children}
                                         </code>
                                     );
@@ -90,10 +108,18 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, isStreaming })
                             <button onClick={handleCopy} className="p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white transition-colors" title="Copy">
                                 {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                             </button>
-                            <button onClick={handleTTS} className="p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white transition-colors" title="Read Aloud">
-                                <Volume2 className="w-4 h-4" />
+                            <button
+                                onClick={handleTTS}
+                                className={`p-2 hover:bg-white/5 rounded-lg transition-colors ${isSpeaking ? 'text-purple-400 bg-purple-500/10' : 'text-gray-400 hover:text-white'}`}
+                                title={isSpeaking ? "Stop Speaking" : "Read Aloud"}
+                            >
+                                {isSpeaking ? <div className="w-2.5 h-2.5 bg-current rounded-sm m-0.5" /> : <Volume2 className="w-4 h-4" />}
                             </button>
-                            <button className="p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white transition-colors" title="Regenerate">
+                            <button
+                                onClick={onRegenerate}
+                                className="p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white transition-colors"
+                                title="Regenerate"
+                            >
                                 <RotateCcw className="w-4 h-4" />
                             </button>
                         </div>

@@ -1,319 +1,301 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Sidebar from '@/components/Sidebar';
-import styles from './page.module.css';
+import { Save, Key, User, Shield, Trash2, Camera, Loader2, Brain } from 'lucide-react';
+import { useAuth } from '@/components/AuthContext';
+import { useToast } from '@/components/ToastProvider';
 
-export default function Settings() {
-    const router = useRouter();
-    const [isEditing, setIsEditing] = useState(false);
-    const [isSaving, setIsSaving] = useState(false); // Added for save simulation
-    const [theme, setTheme] = useState('dark');
-    const [profile, setProfile] = useState({
-        name: typeof window !== 'undefined' ? localStorage.getItem('prism_user_name') || 'Demo User' : 'Demo User',
-        email: typeof window !== 'undefined' ? localStorage.getItem('prism_user_email') || 'demo@example.com' : 'demo@example.com',
-        username: typeof window !== 'undefined' ? localStorage.getItem('prism_username') || 'demo_user' : 'demo_user',
-        avatar: typeof window !== 'undefined' ? localStorage.getItem('prism_user_avatar') || '' : ''
-    });
-    const [tempProfile, setTempProfile] = useState({ ...profile });
-    const [suggestions, setSuggestions] = useState<string[]>([]);
-    const [error, setError] = useState('');
-    const [geminiKey, setGeminiKey] = useState('');
-    const [showKey, setShowKey] = useState(false);
+export default function SettingsPage() {
+    const { user, updateProfile, deleteAccount } = useAuth();
+    const { showToast } = useToast();
+    const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'api' | 'intelligence'>('profile');
+
+    // Profile State
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+
+    // API Key State
+    const [apiKey, setApiKey] = useState('');
+
+    // Intelligence State
+    const [systemPromptMode, setSystemPromptMode] = useState('default');
+    const [customPrompt, setCustomPrompt] = useState('');
 
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        setTheme(savedTheme);
-        document.documentElement.setAttribute('data-theme', savedTheme);
+        if (user) {
+            setName(user.name);
+            setEmail(user.email);
+        }
+    }, [user]);
 
-        const savedKey = localStorage.getItem('prism_gemini_api_key') || '';
-        setGeminiKey(savedKey);
+    useEffect(() => {
+        const storedKey = localStorage.getItem('prism_gemini_api_key');
+        if (storedKey) setApiKey(storedKey);
 
-        // Refresh profile from localStorage in case it changed
-        const currentProfile = {
-            name: localStorage.getItem('prism_user_name') || 'Demo User',
-            email: localStorage.getItem('prism_user_email') || 'demo@example.com',
-            username: localStorage.getItem('prism_username') || 'demo_user',
-            avatar: localStorage.getItem('prism_user_avatar') || ''
-        };
-        setProfile(currentProfile);
+        const storedMode = localStorage.getItem('prism_system_prompt_mode') || 'default';
+        const storedPrompt = localStorage.getItem('prism_custom_system_prompt') || '';
+        setSystemPromptMode(storedMode);
+        setCustomPrompt(storedPrompt);
     }, []);
 
-    const handleKeySave = () => {
-        localStorage.setItem('prism_gemini_api_key', geminiKey);
+    const handleSaveProfile = async () => {
+        if (!user) return;
         setIsSaving(true);
-        setTimeout(() => setIsSaving(false), 2000);
-    };
-
-    const generateSuggestions = (fullName: string) => {
-        if (!fullName.trim()) {
-            setSuggestions([]);
-            return;
-        }
-
-        const parts = fullName.trim().split(' ');
-        const firstName = parts[0].toLowerCase();
-        const lastName = parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
-        const last2 = lastName.length >= 2 ? lastName.slice(-2) : String(Math.floor(10 + Math.random() * 90));
-
-        const now = new Date();
-        const dd = String(now.getDate()).padStart(2, '0');
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const yy = String(now.getFullYear()).slice(-2);
-        const dateStr = `${dd}${mm}${yy}`;
-
-        const s1 = `${firstName}:${last2}:${dateStr}`;
-        const s2 = `${firstName}${Math.floor(100 + Math.random() * 900)}`;
-        const s3 = `${firstName}_${yy}`;
-
-        setSuggestions([s1, s2, s3]);
-    };
-
-    useEffect(() => {
-        if (isEditing) {
-            const timer = setTimeout(() => {
-                generateSuggestions(tempProfile.name);
-            }, 500);
-            return () => clearTimeout(timer);
-        }
-    }, [tempProfile.name, isEditing]);
-
-    const handleThemeChange = (newTheme: string) => {
-        setTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
-        document.documentElement.setAttribute('data-theme', newTheme);
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem('prism_auth');
-        router.push('/login');
-    };
-
-    const handleEdit = () => {
-        setTempProfile({ ...profile });
-        setError('');
-        setIsEditing(true);
-    };
-
-    const handleSave = () => {
-        setError('');
-
-        // 1. Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(tempProfile.email)) {
-            setError('Please enter a valid email address.');
-            return;
-        }
-
-        // 2. Uniqueness check if username changed
-        if (tempProfile.username !== profile.username) {
-            const registeredUsers = JSON.parse(localStorage.getItem('prism_registered_users') || '[]');
-            const isTaken = registeredUsers.some((u: any) => u.username === tempProfile.username && u.email !== profile.email);
-
-            if (isTaken) {
-                setError('This username is already taken. Please pick another one.');
-                return;
-            }
-        }
-
-        // 2. Refresh local session data
-        localStorage.setItem('prism_user_name', tempProfile.name);
-        localStorage.setItem('prism_user_email', tempProfile.email);
-        localStorage.setItem('prism_username', tempProfile.username);
-        localStorage.setItem('prism_user_avatar', tempProfile.avatar);
-
-        // 3. Update the global user registry
-        const registeredUsers = JSON.parse(localStorage.getItem('prism_registered_users') || '[]');
-        const userIndex = registeredUsers.findIndex((u: any) => (u.email === profile.email || u.username === profile.username));
-
-        if (userIndex !== -1) {
-            registeredUsers[userIndex] = {
-                ...registeredUsers[userIndex],
-                name: tempProfile.name,
-                email: tempProfile.email,
-                username: tempProfile.username,
-                avatar: tempProfile.avatar
-            };
-            localStorage.setItem('prism_registered_users', JSON.stringify(registeredUsers));
-        }
-
-        setProfile({ ...tempProfile });
-        setIsEditing(false);
-    };
-
-    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setTempProfile(prev => ({ ...prev, avatar: reader.result as string }));
-            };
-            reader.readAsDataURL(file);
+        try {
+            await updateProfile({ name, email });
+            showToast('Profile updated successfully', 'success');
+        } catch (e) {
+            console.error(e);
+            showToast('Failed to update profile', 'error');
+        } finally {
+            setIsSaving(false);
         }
     };
 
-    const handleCancel = () => {
-        setIsEditing(false);
+    const handleSaveApiKey = () => {
+        localStorage.setItem('prism_gemini_api_key', apiKey);
+        showToast('API Key saved successfully', 'success');
+    };
+
+    const handleSaveIntelligence = () => {
+        localStorage.setItem('prism_system_prompt_mode', systemPromptMode);
+        localStorage.setItem('prism_custom_system_prompt', customPrompt);
+        showToast('AI Persona updated', 'success');
+    };
+
+    const tabs = [
+        { id: 'profile', label: 'Profile', icon: <User className="w-4 h-4" /> },
+        { id: 'intelligence', label: 'Intelligence', icon: <Brain className="w-4 h-4" /> },
+        { id: 'security', label: 'Security', icon: <Shield className="w-4 h-4" /> },
+        { id: 'api', label: 'API Configuration', icon: <Key className="w-4 h-4" /> },
+    ];
+
+    const personas = {
+        default: "You are Prizm AI, a helpful and versatile AI assistant.",
+        coder: "You are an expert software engineer. Provide concise, high-quality code. Avoid conversational filler. Focus on performance and best practices.",
+        storyteller: "You are a creative writer. Use vivid imagery, metaphors, and engaging narratives. Be descriptive and immersive.",
+        custom: "Custom"
     };
 
     return (
-        <div className={styles.container}>
-            <Sidebar />
-            <main className={styles.main}>
-                <header className={styles.header}>
-                    <h1 className={styles.title}>Settings</h1>
-                    <p className={styles.subtitle}>Manage your account and preferences.</p>
-                </header>
+        <div className="flex-1 p-10 max-w-4xl mx-auto w-full overflow-y-auto">
+            <h1 className="text-4xl font-black text-white mb-2">Settings</h1>
+            <p className="text-gray-500 mb-8">Manage your account preferences and configurations.</p>
 
-                <section className={styles.section}>
-                    <h2 className={styles.sectionTitle}>Profile</h2>
-                    <div className={styles.card}>
-                        <div className={styles.profileRow}>
-                            <div className={styles.avatarWrapper}>
-                                <div
-                                    className={styles.avatar}
-                                    style={isEditing && tempProfile.avatar ? { backgroundImage: `url(${tempProfile.avatar})`, backgroundSize: 'cover' } : (!isEditing && profile.avatar ? { backgroundImage: `url(${profile.avatar})`, backgroundSize: 'cover' } : {})}
-                                >
-                                    {isEditing ? (!tempProfile.avatar && tempProfile.name.charAt(0).toUpperCase()) : (!profile.avatar && profile.name.charAt(0).toUpperCase())}
-                                </div>
-                                {isEditing && (
-                                    <label className={styles.avatarUpload}>
-                                        <input type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
-                                        <span>Update</span>
-                                    </label>
-                                )}
-                            </div>
-
-                            {isEditing ? (
-                                <div className={styles.editForm}>
-                                    {error && <div className={styles.error}>{error}</div>}
-                                    <div className={styles.inputGroup}>
-                                        <label>Full Name</label>
-                                        <input
-                                            type="text"
-                                            className={styles.editInput}
-                                            value={tempProfile.name}
-                                            onChange={(e) => setTempProfile({ ...tempProfile, name: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className={styles.inputGroup}>
-                                        <label>Unique Username</label>
-                                        <input
-                                            type="text"
-                                            className={styles.editInput}
-                                            value={tempProfile.username}
-                                            onChange={(e) => setTempProfile({ ...tempProfile, username: e.target.value })}
-                                            placeholder="Enter unique username"
-                                        />
-                                        {suggestions.length > 0 && (
-                                            <div className={styles.suggestions}>
-                                                <span className={styles.suggestionLabel}>Suggestions:</span>
-                                                <div className={styles.suggestionList}>
-                                                    {suggestions.map((s, i) => (
-                                                        <button
-                                                            key={i}
-                                                            type="button"
-                                                            className={styles.suggestionBadge}
-                                                            onClick={() => setTempProfile(prev => ({ ...prev, username: s }))}
-                                                        >
-                                                            {s}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className={styles.inputGroup}>
-                                        <label>Email Address</label>
-                                        <input
-                                            type="email"
-                                            className={styles.editInput}
-                                            value={tempProfile.email}
-                                            onChange={(e) => setTempProfile({ ...tempProfile, email: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className={styles.formActions}>
-                                        <button className={styles.saveButton} onClick={handleSave}>Save Changes</button>
-                                        <button className={styles.cancelButton} onClick={handleCancel}>Cancel</button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className={styles.profileInfo}>
-                                        <p className={styles.profileName}>{profile.name}</p>
-                                        <p className={styles.profileUsername}>@{profile.username}</p>
-                                        <p className={styles.profileEmail}>{profile.email}</p>
-                                    </div>
-                                    <button className={styles.editButton} onClick={handleEdit}>Edit</button>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </section>
-
-                <section className={styles.section}>
-                    <h2 className={styles.sectionTitle}>AI Configuration</h2>
-                    <div className={styles.card}>
-                        <div className={styles.settingRow} style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                                <span>Gemini API Key</span>
-                                <button
-                                    className={styles.saveButton}
-                                    style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}
-                                    onClick={handleKeySave}
-                                >
-                                    {isSaving ? 'Saved!' : 'Save Key'}
-                                </button>
-                            </div>
-                            <div className={styles.keyInputWrapper} style={{ width: '100%', display: 'flex', gap: '0.5rem' }}>
-                                <input
-                                    type={showKey ? "text" : "password"}
-                                    className={styles.editInput}
-                                    style={{ flex: 1 }}
-                                    value={geminiKey}
-                                    onChange={(e) => setGeminiKey(e.target.value)}
-                                    placeholder="Enter your Gemini API key..."
-                                />
-                                <button
-                                    className={styles.editButton}
-                                    onClick={() => setShowKey(!showKey)}
-                                    style={{ padding: '0.5rem' }}
-                                >
-                                    {showKey ? 'Hide' : 'Show'}
-                                </button>
-                            </div>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                Your key is stored locally in your browser and never sent to our servers.
-                                Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)' }}>Google AI Studio</a>.
-                            </p>
-                        </div>
-                    </div>
-                </section>
-
-                <section className={styles.section}>
-                    <h2 className={styles.sectionTitle}>Application</h2>
-                    <div className={styles.card}>
-                        <div className={styles.settingRow}>
-                            <span>Theme</span>
-                            <select
-                                className={styles.select}
-                                value={theme}
-                                onChange={(e) => handleThemeChange(e.target.value)}
-                            >
-                                <option value="dark">Dark</option>
-                                <option value="light">Light</option>
-                            </select>
-                        </div>
-                    </div>
-                </section>
-
-                <section className={styles.section}>
-                    <button onClick={handleLogout} className={styles.logoutButton}>
-                        Log out
+            {/* Tabs */}
+            <div className="flex items-center gap-2 mb-8 border-b border-white/10 overflow-x-auto">
+                {tabs.map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id as any)}
+                        className={`flex items-center gap-2 px-6 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeTab === tab.id
+                                ? 'border-purple-500 text-white'
+                                : 'border-transparent text-gray-500 hover:text-gray-300'
+                            }`}
+                    >
+                        {tab.icon}
+                        {tab.label}
                     </button>
-                </section>
-            </main>
+                ))}
+            </div>
+
+            <div className="space-y-8 pb-20">
+                {activeTab === 'profile' && (
+                    <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                            <User className="w-5 h-5 text-purple-500" />
+                            Personal Information
+                        </h2>
+
+                        <div className="flex flex-col md:flex-row gap-8">
+                            {/* Avatar */}
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="relative group cursor-pointer">
+                                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-3xl font-bold text-white uppercase shadow-2xl">
+                                        {name.slice(0, 2)}
+                                    </div>
+                                    <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Camera className="w-6 h-6 text-white" />
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-500">Click to upload</p>
+                            </div>
+
+                            {/* Form */}
+                            <div className="flex-1 space-y-5">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-400">Full Name</label>
+                                    <input
+                                        type="text"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500/50 outline-none transition-all"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-400">Email Address</label>
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-purple-500/50 outline-none transition-all"
+                                    />
+                                </div>
+
+                                <div className="pt-4 flex justify-end">
+                                    <button
+                                        onClick={handleSaveProfile}
+                                        disabled={isSaving}
+                                        className="px-6 py-2.5 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-all flex items-center gap-2 disabled:opacity-50"
+                                    >
+                                        {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'intelligence' && (
+                    <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                <Brain className="w-5 h-5 text-blue-500" />
+                                AI Persona
+                            </h2>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {['default', 'coder', 'storyteller', 'custom'].map((mode) => (
+                                    <button
+                                        key={mode}
+                                        onClick={() => setSystemPromptMode(mode)}
+                                        className={`p-4 rounded-xl border text-left transition-all ${systemPromptMode === mode
+                                                ? 'bg-blue-500/10 border-blue-500/50 text-white'
+                                                : 'bg-[#111] border-white/5 text-gray-400 hover:border-white/20 hover:text-white'
+                                            }`}
+                                    >
+                                        <div className="font-bold capitalize mb-1">{mode}</div>
+                                        <div className="text-xs opacity-70">
+                                            {mode === 'default' && 'Helpful & Versatile'}
+                                            {mode === 'coder' && 'Strict & Technical'}
+                                            {mode === 'storyteller' && 'Creative & Vivid'}
+                                            {mode === 'custom' && 'User Defined'}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-400">System Instruction</label>
+                                <textarea
+                                    value={systemPromptMode === 'custom' ? customPrompt : personas[systemPromptMode as keyof typeof personas]}
+                                    onChange={(e) => setCustomPrompt(e.target.value)}
+                                    disabled={systemPromptMode !== 'custom'}
+                                    rows={5}
+                                    className={`w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500/50 outline-none transition-all font-mono text-sm leading-relaxed ${systemPromptMode !== 'custom' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    placeholder="Define how the AI should behave..."
+                                />
+                                <p className="text-xs text-gray-500">
+                                    {systemPromptMode !== 'custom' ? "Select 'Custom' to edit this prompt." : "This instruction will be prepended to every conversation."}
+                                </p>
+                            </div>
+
+                            <div className="pt-4 flex justify-end">
+                                <button
+                                    onClick={handleSaveIntelligence}
+                                    className="px-6 py-2.5 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-all flex items-center gap-2"
+                                >
+                                    <Save className="w-4 h-4" />
+                                    Save Persona
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'api' && (
+                    <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                            <Key className="w-5 h-5 text-yellow-500" />
+                            API Configuration
+                        </h2>
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-400">Google Gemini API Key</label>
+                                <input
+                                    type="password"
+                                    value={apiKey}
+                                    onChange={(e) => setApiKey(e.target.value)}
+                                    placeholder="AIzaSy..."
+                                    className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500/50 outline-none transition-all font-mono"
+                                />
+                                <p className="text-xs text-gray-500">Required for chat functionality. Stored locally in your browser.</p>
+                            </div>
+                            <div className="pt-4 flex justify-end">
+                                <button
+                                    onClick={handleSaveApiKey}
+                                    className="px-6 py-2.5 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-all flex items-center gap-2"
+                                >
+                                    <Save className="w-4 h-4" />
+                                    Save API Key
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'security' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-8">
+                            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                                <Shield className="w-5 h-5 text-green-500" />
+                                Password
+                            </h2>
+                            <div className="space-y-5">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-400">New Password</label>
+                                    <input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-green-500/50 outline-none transition-all"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-400">Confirm Password</label>
+                                    <input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-green-500/50 outline-none transition-all"
+                                    />
+                                </div>
+                                <div className="pt-4 flex justify-end">
+                                    <button className="px-6 py-2.5 bg-white/10 text-white font-bold rounded-lg hover:bg-white/20 transition-all">
+                                        Update Password
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-8">
+                            <h2 className="text-xl font-bold text-red-500 mb-2 flex items-center gap-2">
+                                <Trash2 className="w-5 h-5" />
+                                Danger Zone
+                            </h2>
+                            <p className="text-gray-400 mb-6 text-sm">Once you delete your account, there is no going back. Please be certain.</p>
+                            <button
+                                onClick={deleteAccount}
+                                className="px-6 py-2.5 bg-red-500/10 text-red-400 font-bold rounded-lg hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
+                            >
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

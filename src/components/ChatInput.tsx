@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import { Send, Mic, Paperclip, X, FileText } from 'lucide-react';
 import { useSpeechToText } from '../hooks/useSpeechToText';
 
@@ -7,16 +7,39 @@ interface ChatInputProps {
     isLoading: boolean;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
+export interface ChatInputHandle {
+    focus: () => void;
+}
+
+const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onSendMessage, isLoading }, ref) => {
     const [input, setInput] = useState('');
     const [files, setFiles] = useState<File[]>([]);
     const { isRecording, transcript, startRecording, stopRecording } = useSpeechToText();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useImperativeHandle(ref, () => ({
+        focus: () => {
+            inputRef.current?.focus();
+        }
+    }));
 
     // Sync transcript to input
+    const previousTranscriptRef = useRef('');
+
     React.useEffect(() => {
-        if (transcript) setInput(transcript);
-    }, [transcript]);
+        if (isRecording) {
+            // When recording starts/continues, append new part of transcript
+            const newPart = transcript.slice(previousTranscriptRef.current.length);
+            if (newPart) {
+                setInput(prev => prev + newPart);
+                previousTranscriptRef.current = transcript;
+            }
+        } else {
+            // Reset tracker when not recording
+            previousTranscriptRef.current = '';
+        }
+    }, [transcript, isRecording]);
 
     const handleSubmit = (e?: React.FormEvent) => {
         e?.preventDefault();
@@ -70,12 +93,21 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="p-2 text-gray-500 hover:text-white transition-colors"
+                    title="Upload Image or File"
                 >
                     <Paperclip className="w-5 h-5" />
-                    <input type="file" ref={fileInputRef} className="hidden" multiple onChange={(e) => setFiles(p => [...p, ...Array.from(e.target.files || [])])} />
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        multiple
+                        accept="image/*,application/pdf,text/plain,.md,.csv"
+                        onChange={(e) => setFiles(p => [...p, ...Array.from(e.target.files || [])])}
+                    />
                 </button>
 
                 <input
+                    ref={inputRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
@@ -103,6 +135,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             </form>
         </div>
     );
-};
+});
+
+ChatInput.displayName = 'ChatInput';
 
 export default ChatInput;

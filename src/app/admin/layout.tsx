@@ -1,9 +1,11 @@
 "use client";
 
-import { Shield, LayoutDashboard, Users, Settings } from 'lucide-react';
+import { Shield, LayoutDashboard, Users, Settings, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { ToastProvider } from '@/components/ToastProvider';
+import { useAuth } from '@/components/AuthContext';
 
 export default function AdminLayout({
     children,
@@ -11,6 +13,30 @@ export default function AdminLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const router = useRouter();
+    const { user, isLoading } = useAuth();
+
+    useEffect(() => {
+        if (!isLoading) {
+            if (!user) {
+                router.push('/login');
+            } else if (user.role !== 'admin') {
+                router.push('/'); // Or an unauthorized page
+            }
+        }
+    }, [user, isLoading, router]);
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-screen bg-black text-white">
+                <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+            </div>
+        );
+    }
+
+    if (!user || user.role !== 'admin') {
+        return null; // Return null while redirecting
+    }
 
     const adminNavItems = [
         { href: '/admin', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
