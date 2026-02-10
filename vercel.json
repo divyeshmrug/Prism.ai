@@ -1,0 +1,5 @@
+{
+    "name": "prizm-ai",
+    "framework": "nextjs",
+    "buildCommand": "npm run build"
+}

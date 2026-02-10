@@ -201,7 +201,10 @@ export default function Home() {
     setIsLoading(true);
 
     try {
-      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+      const envKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+      const storedKey = typeof window !== 'undefined' ? localStorage.getItem('prism_gemini_api_key') : null;
+      const apiKey = envKey && envKey !== 'YOUR_API_KEY_HERE' ? envKey : storedKey;
+
       if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
         throw new Error("API Key not found. Please add your Gemini API key in Settings or .env.local");
       }
