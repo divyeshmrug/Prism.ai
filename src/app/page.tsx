@@ -332,19 +332,19 @@ export default function Home() {
         }`}>
         {activeView === 'chat' ? (
           <div className="flex-1 flex flex-col relative h-full min-h-0 overflow-hidden">
-            {/* Minimalist Constant Header */}
-            <header className="absolute top-0 left-0 w-full h-16 border-b border-white/5 flex items-center justify-between px-10 bg-background z-30">
+            {/* Constant Ash Black Header */}
+            <header className="absolute top-0 left-0 w-full h-16 border-b border-white/5 flex items-center justify-between px-10 bg-[#1B1B1B] z-30">
               <div className="flex items-center gap-6">
                 <div className="flex flex-col">
-                  <h2 className="text-sm font-bold text-gray-400 uppercase tracking-[0.2em]">Neural Output</h2>
+                  <h2 className="text-sm font-bold text-gray-500 uppercase tracking-[0.2em]">System Output</h2>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-                    <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest italic">Core Secured</span>
+                    <span className="flex h-1.5 w-1.5 rounded-none bg-accent" />
+                    <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest italic">Encrypted Connection</span>
                   </div>
                 </div>
               </div>
             </header>
-            <div className="flex-1 overflow-y-auto pt-20 pb-10 scroll-smooth custom-scrollbar h-full">
+            <div className="flex-1 overflow-y-auto pt-20 pb-10 scroll-smooth custom-scrollbar h-full bg-[#1B1B1B]">
               {messages.length === 0 ? (
                 <EmptyState onSelectPrompt={(p) => handleSendMessage(p, [])} />
               ) : (
@@ -370,8 +370,8 @@ export default function Home() {
             <KnowledgeBase />
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500 bg-[#1B1B1B] border border-white/10 rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-500 font-medium font-medium">
-            <p className="text-xl italic">The {activeView} module is under development.</p>
+          <div className="flex-1 flex items-center justify-center text-gray-600 bg-[#1B1B1B] border-none shadow-none font-medium">
+            <p className="text-sm uppercase tracking-widest italic">The {activeView} module is under development.</p>
           </div>
         )}
       </main>

@@ -87,7 +87,7 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onSendMessage, 
 
             <form
                 onSubmit={handleSubmit}
-                className="relative flex items-center bg-transparent border-t border-white/5 w-full h-[80px] px-8 pl-12 focus-within:border-white/20 transition-all group"
+                className="relative flex items-center bg-[#1B1B1B] border-t border-white/5 w-full h-[80px] px-8 pl-12 focus-within:border-white/10 transition-all group"
             >
                 <button
                     type="button"
@@ -127,9 +127,9 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onSendMessage, 
                     <button
                         type="submit"
                         disabled={(!input.trim() && files.length === 0) || isLoading}
-                        className="h-[44px] px-6 bg-primary/10 text-primary border border-primary/20 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all flex items-center gap-2"
+                        className="h-[40px] px-5 bg-primary text-white border-none rounded-none font-bold text-[10px] uppercase tracking-widest hover:opacity-80 transition-all flex items-center gap-2"
                     >
-                        {isLoading ? "Running..." : "Execute"}
+                        {isLoading ? "Running" : "Execute"}
                     </button>
                 </div>
             </form>

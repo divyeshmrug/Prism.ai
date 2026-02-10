@@ -75,14 +75,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </button>
             )}
 
-            <aside className={`fixed top-0 left-0 h-full bg-[#1B1B1B] border-r border-white/5 transition-all duration-300 z-40 ${isOpen ? 'w-[280px]' : 'w-0 overflow-hidden'
+            <aside className={`fixed top-0 left-0 h-full bg-[#1B1B1B] border-r border-white/5 shadow-none transition-all duration-300 z-40 ${isOpen ? 'w-[280px]' : 'w-0 overflow-hidden'
                 }`}>
                 <div className="flex flex-col h-full w-[280px]">
                     {/* Brand Header */}
                     <div className="p-6 pb-6 border-b border-white/5">
                         <div className="flex items-center justify-between mb-6">
-                            <h1 className="text-2xl font-black tracking-tight flex items-center gap-2 text-white">
-                                <span className="">Prizm AI</span>
+                            <h1 className="text-xl font-bold text-white tracking-widest flex items-center gap-2">
+                                <span className="w-1.5 h-6 bg-primary"></span>
+                                PRISM.AI
                             </h1>
                             <button onClick={toggleSidebar} className="text-gray-600 hover:text-white transition-colors">
                                 <PanelLeftClose className="w-5 h-5" />
@@ -95,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 onViewChange('chat');
                                 onNewChat?.();
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-3 bg-white text-black hover:bg-gray-200 rounded-xl transition-all font-bold text-sm shadow-lg group mb-2"
+                            className="w-full flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl transition-all font-bold text-sm shadow-lg group mb-2"
                         >
                             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
                             <span>New Chat</span>
@@ -104,7 +105,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         {activeChatId && activeView === 'chat' && (
                             <button
                                 onClick={onExportChat}
-                                className="w-full flex items-center gap-3 px-4 py-2 bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all font-medium text-xs group"
+                                className="w-full flex items-center gap-3 px-4 py-2 bg-transparent text-gray-400 hover:text-white rounded-lg transition-all font-medium text-xs group"
                             >
                                 <Download className="w-4 h-4" />
                                 <span>Export Chat</span>
@@ -120,8 +121,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 key={item.id}
                                 onClick={() => onViewChange(item.id as ViewType)}
                                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-none transition-all duration-200 group ${activeView === item.id
-                                    ? 'text-white border-l-2 border-primary bg-primary/5'
-                                    : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
+                                    ? 'text-white border-l-2 border-primary bg-transparent'
+                                    : 'text-gray-500 hover:text-white bg-transparent'
                                     }`}
                             >
                                 <div className={`${activeView === item.id ? 'text-white' : 'text-gray-600 group-hover:text-gray-400'}`}>
@@ -145,8 +146,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                                     <div
                                         key={chat.id}
                                         className={`group relative flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all cursor-pointer ${activeChatId === chat.id
-                                            ? 'bg-white/5 text-white'
-                                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                                            ? 'bg-primary text-white'
+                                            : 'text-gray-400 hover:text-white bg-transparent'
                                             }`}
                                         onClick={() => {
                                             if (editingChatId !== chat.id) {
@@ -174,7 +175,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                         )}
 
                                         {!editingChatId && (
-                                            <div className="absolute right-2 opacity-0 group-hover:opacity-100 flex items-center gap-1 bg-[#050505] pl-2 transition-opacity">
+                                            <div className="absolute right-2 opacity-0 group-hover:opacity-100 flex items-center gap-1 bg-transparent pl-2 transition-opacity">
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -208,7 +209,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         {user ? (
                             <div className="flex items-center justify-between group">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-bold shadow-inner">
+                                    <div className="w-10 h-10 rounded-none bg-primary border border-primary flex items-center justify-center text-white font-bold">
                                         {user?.name?.[0].toUpperCase()}
                                     </div>
                                     <div className="flex flex-col">

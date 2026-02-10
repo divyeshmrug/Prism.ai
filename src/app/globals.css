@@ -5,17 +5,17 @@
   --foreground: #ffffff;
   --primary: #1e5636;
   /* Pine Forest Green */
-  --primary-hover: #153e28;
+  --primary-hover: #1e5636;
   --accent: #4E313D;
   /* Mulled Wine Red */
-  --surface: #242424;
-  --surface-highlight: #2d2d2d;
-  --border: #333333;
+  --surface: #1B1B1B;
+  --surface-highlight: #1B1B1B;
+  --border: #242424;
   --text-primary: #ffffff;
-  --text-secondary: #b0b0b0;
-  --text-muted: #707070;
-  --radius-pill: 9999px;
-  --radius-card: 24px;
+  --text-secondary: #aaaaaa;
+  --text-muted: #666666;
+  --radius-pill: 0px;
+  --radius-card: 0px;
 
   /* Auth Theme (Ash & Pine) */
   --auth-bg: #1B1B1B;
@@ -54,28 +54,23 @@
 }
 
 /* Solid Background Foundation */
+/* Flawless Flattening: No Gradients */
 .aurora-bg {
   background: var(--background);
-  position: relative;
-  overflow: hidden;
+}
+
+.text-gradient {
+  color: var(--text-primary);
+}
+
+.primary-gradient {
+  background: var(--primary);
 }
 
 /* Utilities */
 .glass {
-  background: rgba(27, 27, 27, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.text-gradient {
-  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.primary-gradient {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background: var(--background);
+  border: 1px solid var(--border);
 }
 
 /* Custom Scrollbar for a 'proper' feel */
@@ -98,7 +93,7 @@
 
 @layer base {
   body {
-    background-color: var(--background);
+    background-color: #1B1B1B;
     @apply antialiased overflow-hidden;
     color: white;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
