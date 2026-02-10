@@ -104,6 +104,13 @@ export default function Home() {
     scrollToBottom();
   }, [messages]);
 
+  const mockStats = {
+    totalMessages: 1248,
+    activeAgents: 4,
+    health: '100%',
+    themeColor: '#535434'
+  };
+
   const handleNewChat = () => {
     setMessages([]);
     setActiveChatId(null);
@@ -349,7 +356,7 @@ export default function Home() {
             <KnowledgeBase />
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500 font-medium">
+          <div className="flex-1 flex items-center justify-center text-gray-500 bg-[#33342f] border border-white/10 rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-500 font-medium">
             <p className="text-xl italic">The {activeView} module is under development.</p>
           </div>
         )}

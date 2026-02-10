@@ -1,25 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
+  --background: #3B3C36;
   --foreground: #ffffff;
-  --primary: #CCFF00;
-  /* Vibrant Lime Green */
-  --primary-hover: #b8e600;
-  --surface: #0a0a0a;
-  --surface-highlight: #121212;
-  --border: #1a1a1a;
+  --primary: #17502F;
+  /* Castleton Green */
+  --primary-hover: #1e6b3f;
+  --accent: #535434;
+  /* Army Green for "touch up" */
+  --surface: #33342f;
+  --surface-highlight: #43443e;
+  --border: #2e2f2a;
   --text-primary: #ffffff;
-  --text-secondary: #999999;
-  --text-muted: #666666;
+  --text-secondary: #c2c3bc;
+  --text-muted: #8e8f88;
   --radius-pill: 9999px;
   --radius-card: 24px;
 
-  /* Auth Theme (Dark/Aurora) */
-  --auth-bg: #000000;
-  --auth-surface: #0a0a0a;
-  --auth-border: #1a1a1a;
-  --auth-accent: #CCFF00;
+  /* Auth Theme (Tricolor) */
+  --auth-bg: #3B3C36;
+  --auth-surface: #33342f;
+  --auth-border: #2e2f2a;
+  --auth-accent: #17502F;
   --auth-text: #ffffff;
 }
 
@@ -38,7 +40,7 @@
 }
 
 .aurora-bg {
-  background: linear-gradient(-45deg, #000000, #0a0a1a, #1a1a3a, #000000);
+  background: linear-gradient(-45deg, #3B3C36, #33342f, #17502F, #535434);
   background-size: 400% 400%;
   animation: aurora 15s ease infinite;
   position: relative;
@@ -47,7 +49,7 @@
 
 /* Utilities */
 .glass {
-  background: rgba(18, 18, 26, 0.7);
+  background: rgba(59, 60, 54, 0.7);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -73,7 +75,7 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #1a1a1a;
+  background: #535434;
   border-radius: 10px;
 }
 
@@ -83,7 +85,9 @@
 
 @layer base {
   body {
-    @apply bg-black antialiased overflow-hidden;
+    @apply bg-background antialiased overflow-hidden;
+    background-color: #3B3C36;
+    color: white;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
   }
 }
