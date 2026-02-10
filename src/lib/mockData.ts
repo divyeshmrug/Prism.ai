@@ -43,7 +43,7 @@ export const mockUsers: User[] = [
     },
     {
         id: '3',
-        name: 'sd',
+        name: 'Sarah Jenkins',
         email: 'dasd@example.com',
         role: 'user',
         status: 'active',
@@ -52,7 +52,7 @@ export const mockUsers: User[] = [
     },
     {
         id: '4',
-        name: 'asd',
+        name: 'Benjamin Wright',
         email: 'soham@example.com',
         role: 'user',
         status: 'active',
@@ -70,7 +70,7 @@ export const mockUsers: User[] = [
     },
     {
         id: '6',
-        name: 'sdv',
+        name: 'Elena Rodriguez',
         email: 'a@GMAIL.COM',
         role: 'user',
         status: 'inactive',
