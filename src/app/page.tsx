@@ -304,10 +304,10 @@ export default function Home() {
 
 
   return (
-    <div className="flex h-screen bg-black text-white selection:bg-primary/30 overflow-hidden">
+    <div className="flex h-screen bg-background text-white selection:bg-primary/30 overflow-hidden">
       {/* Premium Background Layer */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#1a1a1a_0%,_transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#242424_0%,_transparent_50%)]" />
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150" />
       </div>
 
