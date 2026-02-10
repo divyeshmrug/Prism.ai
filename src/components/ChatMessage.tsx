@@ -48,11 +48,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, isStreaming, i
     };
 
     return (
-        <div className={`flex w-full py-10 transition-colors ${role === 'prism' ? 'bg-[#0a0a0a]/50 border-y border-white/5' : ''}`}>
+        <div className={`flex w-full py-10 transition-colors ${role === 'prism' ? 'bg-surface/30 border-y border-white/5' : ''}`}>
             <div className="max-w-4xl mx-auto flex gap-8 px-6 w-full group">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ${role === 'user' ? 'bg-blue-600' : 'bg-primary'
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ${role === 'user' ? 'bg-accent' : 'bg-primary'
                     }`}>
-                    {role === 'user' ? <User className="w-6 h-6 text-white" /> : <Bot className="w-6 h-6 text-black" />}
+                    {role === 'user' ? <User className="w-6 h-6 text-white" /> : <Bot className="w-6 h-6 text-white" />}
                 </div>
 
                 <div className="flex-1 space-y-2 overflow-hidden">
@@ -80,7 +80,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, isStreaming, i
                                             value={codeContent}
                                         />
                                     ) : (
-                                        <code className="bg-white/10 px-1.5 py-0.5 rounded text-primary font-mono text-sm" {...props}>
+                                        <code className="bg-accent/20 px-1.5 py-0.5 rounded text-primary font-mono text-sm" {...props}>
                                             {children}
                                         </code>
                                     );
@@ -111,7 +111,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, isStreaming, i
                             </button>
                             <button
                                 onClick={handleTTS}
-                                className={`p-2 hover:bg-white/5 rounded-lg transition-colors ${isSpeaking ? 'text-purple-400 bg-purple-500/10' : 'text-gray-400 hover:text-white'}`}
+                                className={`p-2 hover:bg-white/5 rounded-lg transition-colors ${isSpeaking ? 'text-accent bg-accent/10' : 'text-gray-400 hover:text-white'}`}
                                 title={isSpeaking ? "Stop Speaking" : "Read Aloud"}
                             >
                                 {isSpeaking ? <div className="w-2.5 h-2.5 bg-current rounded-sm m-0.5" /> : <Volume2 className="w-4 h-4" />}
