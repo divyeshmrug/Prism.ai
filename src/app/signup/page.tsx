@@ -129,7 +129,7 @@ export default function Signup() {
 
                 {success && (
                     <div style={{
-                        background: 'rgba(204, 255, 0, 0.1)',
+                        background: 'rgba(23, 80, 47, 0.1)',
                         border: '1px solid var(--primary)',
                         color: 'var(--primary)',
                         padding: '0.75rem 1rem',
@@ -234,7 +234,7 @@ export default function Signup() {
                                 <button
                                     type="button"
                                     onClick={() => alert(`Resent code: ${verificationCode}`)}
-                                    style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', textDecoration: 'underline' }}
+                                    style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', textDecoration: 'underline' }}
                                 >
                                     Resend Code
                                 </button>

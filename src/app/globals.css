@@ -85,8 +85,8 @@
 
 @layer base {
   body {
-    @apply bg-background antialiased overflow-hidden;
-    background-color: #3B3C36;
+    background-color: var(--background);
+    @apply antialiased overflow-hidden;
     color: white;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
   }

@@ -38,13 +38,13 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onSelectPrompt }) => {
                 {prompts.map((prompt, index) => (
                     <div
                         key={index}
-                        className="flex flex-col p-8 rounded-[32px] border border-white/5 bg-[#0d0d0d] hover:border-white/10 transition-all group relative overflow-hidden h-[320px] justify-between"
+                        className="flex flex-col p-8 rounded-[32px] border border-white/5 bg-surface hover:border-white/10 transition-all group relative overflow-hidden h-[320px] justify-between shadow-2xl"
                     >
                         {prompt.image && (
                             <div className="absolute inset-0 opacity-20 grayscale hover:grayscale-0 transition-all">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img src={prompt.image} alt="" className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
                             </div>
                         )}
 
@@ -62,7 +62,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onSelectPrompt }) => {
 
                         <button
                             onClick={() => onSelectPrompt(prompt.text)}
-                            className="relative z-10 w-fit px-6 py-2 bg-primary rounded-full text-black font-bold text-sm flex items-center gap-2 hover:scale-105 active:scale-95 transition-all self-end"
+                            className="relative z-10 w-fit px-6 py-2 bg-primary rounded-full text-white font-bold text-sm flex items-center gap-2 hover:scale-105 active:scale-95 transition-all self-end shadow-lg"
                         >
                             Get This <ArrowRight className="w-4 h-4" />
                         </button>
