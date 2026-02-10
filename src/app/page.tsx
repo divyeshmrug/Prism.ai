@@ -183,10 +183,8 @@ export default function Home() {
   const handleSendMessage = async (text: string, files: File[] = [], existingImages: string[] = []) => {
     if (!text.trim() && files.length === 0 && existingImages.length === 0) return;
 
-    // Separate images from other files
+    // Process images
     const imageFiles = files.filter(f => f.type.startsWith('image/'));
-
-    // Convert images to base64 for display and API
     const imagePromises = imageFiles.map(file => {
       return new Promise<string>((resolve) => {
         const reader = new FileReader();
@@ -207,181 +205,180 @@ export default function Home() {
 
     setIsLoading(true);
 
-    try {
-      const envKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-      const storedKey = typeof window !== 'undefined' ? localStorage.getItem('prism_gemini_api_key') : null;
-      const apiKey = envKey && envKey !== 'YOUR_API_KEY_HERE' ? envKey : storedKey;
+    const envKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    const storedKey = typeof window !== 'undefined' ? localStorage.getItem('prism_gemini_api_key') : null;
+    const apiKey = envKey && envKey !== 'YOUR_API_KEY_HERE' ? envKey : storedKey;
 
-      if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
-        throw new Error("API Key not found. Please add your Gemini API key in Settings or .env.local");
-      }
+    if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
+      setIsLoading(false);
+      const errorMsg: Message = { role: 'prism', content: "API Key not found. Please add your Gemini API key in Settings or .env.local" };
+      setMessages([...updatedMessages, errorMsg]);
+      return;
+    }
 
-      const attemptGeneration = async (modelName: string): Promise<boolean> => {
-        try {
-          const genAI = new GoogleGenerativeAI(apiKey);
-          const model = genAI.getGenerativeModel({ model: modelName });
-
-          // Build Prompt Parts
-          const promptParts: Part[] = [];
-          if (text) promptParts.push({ text });
-          for (const image of images) {
-            const base64Data = image.split(',')[1];
-            const mimeType = image.split(';')[0].split(':')[1];
-            promptParts.push({ inlineData: { data: base64Data, mimeType: mimeType } });
-          }
-
-          const knowledgeItems: KnowledgeItem[] = JSON.parse(localStorage.getItem('prism_knowledge_base') || '[]');
-          const context = knowledgeItems
-            .filter((item) => item.status === 'indexed' && item.content)
-            .map((item) => `[Document: ${item.name}]\n${item.content}`)
-            .join('\n\n');
-
-          if (context) promptParts.unshift({ text: `CONTEXT:\n${context}\n\n` });
-          promptParts.unshift({ text: "You are Prizm AI. Provide professional, concise, and helpful responses." });
-
-          const result = await model.generateContentStream(promptParts);
-          let fullContent = "";
-          const assistantMessage: Message = { role: 'prism', content: "", isStreaming: true, model: modelName };
-          setMessages(prev => [...prev.slice(0, -1), assistantMessage]);
-
-          for await (const chunk of result.stream) {
-            const chunkText = chunk.text();
-            fullContent += chunkText;
-            setMessages(prev => {
-              const newMessages = [...prev];
-              newMessages[newMessages.length - 1] = { role: 'prism', content: fullContent, isStreaming: true, model: modelName };
-              return newMessages;
-            });
-          }
-
-          const finalMessages = [...updatedMessages, { role: 'prism', content: fullContent, isStreaming: false, model: modelName } as Message];
-          setMessages(finalMessages);
-          updateChatHistory(finalMessages);
-          return true;
-        } catch (err: unknown) {
-          const errorMsg = err instanceof Error ? err.message : "";
-          if (errorMsg.includes("429") || errorMsg.includes("quota")) {
-            console.warn(`Quota exceeded for ${modelName}, falling back...`);
-            return false;
-          }
-          throw err;
-        }
-      };
-
+    const attemptGeneration = async (modelName: string): Promise<boolean> => {
       try {
-        const models = ["gemini-2.5-flash", "gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro"];
-        let success = false;
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: modelName });
 
-        // Provide initial streaming placeholder
-        setMessages([...updatedMessages, { role: 'prism', content: "Connecting to neural engine...", isStreaming: true }]);
-
-        for (const modelName of models) {
-          success = await attemptGeneration(modelName);
-          if (success) break;
+        const promptParts: Part[] = [];
+        if (text) promptParts.push({ text });
+        for (const image of images) {
+          const base64Data = image.split(',')[1];
+          const mimeType = image.split(';')[0].split(':')[1];
+          promptParts.push({ inlineData: { data: base64Data, mimeType: mimeType } });
         }
 
-        if (!success) {
-          throw new Error("All available AI models have exceeded their free-tier quota. Please try again later or provide a different API key.");
+        const knowledgeItems: KnowledgeItem[] = JSON.parse(localStorage.getItem('prism_knowledge_base') || '[]');
+        const context = knowledgeItems
+          .filter((item) => item.status === 'indexed' && item.content)
+          .map((item) => `[Document: ${item.name}]\n${item.content}`)
+          .join('\n\n');
+
+        if (context) promptParts.unshift({ text: `CONTEXT:\n${context}\n\n` });
+        promptParts.unshift({ text: "You are Prizm AI. Provide professional and helpful responses." });
+
+        const result = await model.generateContentStream(promptParts);
+        let fullContent = "";
+
+        // Use a functional update to ensure we're adding the assistant message once
+        setMessages(prev => [...prev, { role: 'prism', content: "", isStreaming: true, model: modelName }]);
+
+        for await (const chunk of result.stream) {
+          const chunkText = chunk.text();
+          fullContent += chunkText;
+          setMessages(prev => {
+            const newMessages = [...prev];
+            newMessages[newMessages.length - 1] = { role: 'prism', content: fullContent, isStreaming: true, model: modelName };
+            return newMessages;
+          });
         }
 
-      } catch (error: unknown) {
-        console.error("Gemini Error:", error);
-        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-        const errorMsg = { role: 'prism', content: `Sorry, I encountered an error: ${errorMessage}` } as Message;
-        const finalMessages = [...updatedMessages, errorMsg];
-        setMessages(finalMessages);
-        updateChatHistory(finalMessages);
-      } finally {
-        setIsLoading(false);
+        setMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1] = { role: 'prism', content: fullContent, isStreaming: false, model: modelName };
+          return newMessages;
+        });
+
+        updateChatHistory([...updatedMessages, { role: 'prism', content: fullContent, isStreaming: false, model: modelName }]);
+        return true;
+      } catch (err: unknown) {
+        const errorMsg = err instanceof Error ? err.message : "";
+        if (errorMsg.includes("429") || errorMsg.includes("quota")) {
+          console.warn(`Quota exceeded for ${modelName}, falling back...`);
+          return false;
+        }
+        throw err;
       }
     };
 
-    const handleRegenerate = async () => {
-      // Find the last user message index
-      const lastUserIndex = messages.findLastIndex(m => m.role === 'user');
-      if (lastUserIndex === -1) return;
+    try {
+      const models = ["gemini-2.5-flash", "gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro"];
+      let success = false;
 
-      const lastUserMessage = messages[lastUserIndex];
+      for (const modelName of models) {
+        success = await attemptGeneration(modelName);
+        if (success) break;
+      }
 
-      // Reset messages to BEFORE the last user message
-      const messagesBeforeLast = messages.slice(0, lastUserIndex);
-      setMessages(messagesBeforeLast);
+      if (!success) {
+        throw new Error("All available AI models have exceeded their free-tier quota. Please try again later.");
+      }
+    } catch (error: unknown) {
+      console.error("Gemini Error:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      setMessages(prev => [...prev, { role: 'prism', content: `Sorry, I encountered an error: ${errorMessage}` }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      // Pass existing images if any
-      await handleSendMessage(lastUserMessage.content, [], lastUserMessage.images);
-    };
+  const handleRegenerate = async () => {
+    // Find the last user message index
+    const lastUserIndex = messages.findLastIndex(m => m.role === 'user');
+    if (lastUserIndex === -1) return;
+
+    const lastUserMessage = messages[lastUserIndex];
+
+    // Reset messages to BEFORE the last user message
+    const messagesBeforeLast = messages.slice(0, lastUserIndex);
+    setMessages(messagesBeforeLast);
+
+    // Pass existing images if any
+    await handleSendMessage(lastUserMessage.content, [], lastUserMessage.images);
+  };
 
 
-    return (
-      <div className="flex h-screen bg-background text-white selection:bg-primary/30 overflow-hidden">
-        {/* Premium Background Layer */}
-        <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#242424_0%,_transparent_50%)]" />
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150" />
-        </div>
+  return (
+    <div className="flex h-screen bg-background text-white selection:bg-primary/30 overflow-hidden">
+      {/* Premium Background Layer */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#242424_0%,_transparent_50%)]" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150" />
+      </div>
 
-        <Sidebar
-          isOpen={isSidebarOpen}
-          toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-          activeView={activeView}
-          onViewChange={handleViewChange}
-          // Chat History Props
-          chatHistory={history}
-          activeChatId={activeChatId}
-          onNewChat={handleNewChat}
-          onSelectChat={handleSelectChat}
-          onDeleteChat={handleDeleteChat}
-          onRenameChat={handleRenameChat}
-          onExportChat={handleExportChat}
-        />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        activeView={activeView}
+        onViewChange={handleViewChange}
+        // Chat History Props
+        chatHistory={history}
+        activeChatId={activeChatId}
+        onNewChat={handleNewChat}
+        onSelectChat={handleSelectChat}
+        onDeleteChat={handleDeleteChat}
+        onRenameChat={handleRenameChat}
+        onExportChat={handleExportChat}
+      />
 
-        <main className={`relative z-10 flex-1 flex flex-col transition-all duration-300 ease-in-out h-full ${isSidebarOpen ? 'pl-[280px]' : 'pl-0'
-          }`}>
-          {activeView === 'chat' ? (
-            <div className="flex-1 flex flex-col relative h-full min-h-0 overflow-hidden">
-              {/* Header */}
-              <header className="absolute top-0 left-0 w-full h-20 border-b border-white/5 flex items-center justify-between px-10 bg-background/80 backdrop-blur-xl z-30">
-                <div className="flex items-center gap-6">
-                  <div className="flex flex-col">
-                    <h2 className="text-xl font-bold text-white tracking-tight">Prism Terminal</h2>
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-2 w-2 rounded-full bg-accent animate-pulse" />
-                      <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest">v2.5 Hybrid Cloud • Online</span>
-                    </div>
+      <main className={`relative z-10 flex-1 flex flex-col transition-all duration-300 ease-in-out h-full ${isSidebarOpen ? 'pl-[280px]' : 'pl-0'
+        }`}>
+        {activeView === 'chat' ? (
+          <div className="flex-1 flex flex-col relative h-full min-h-0 overflow-hidden">
+            {/* Header */}
+            <header className="absolute top-0 left-0 w-full h-20 border-b border-white/5 flex items-center justify-between px-10 bg-background/80 backdrop-blur-xl z-30">
+              <div className="flex items-center gap-6">
+                <div className="flex flex-col">
+                  <h2 className="text-xl font-bold text-white tracking-tight">Prism Terminal</h2>
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-2 w-2 rounded-full bg-accent animate-pulse" />
+                    <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest">v2.5 Hybrid Cloud • Online</span>
                   </div>
                 </div>
-              </header>
-              <div className="flex-1 overflow-y-auto pt-24 pb-10 scroll-smooth custom-scrollbar h-full">
-                {messages.length === 0 ? (
-                  <EmptyState onSelectPrompt={(p) => handleSendMessage(p, [])} />
-                ) : (
-                  <>
-                    {messages.map((msg, i) => (
-                      <ChatMessage
-                        key={i}
-                        {...msg}
-                        onRegenerate={i === messages.length - 1 && msg.role === 'prism' ? handleRegenerate : undefined}
-                      />
-                    ))}
-                    <div ref={messagesEndRef} />
-                  </>
-                )}
               </div>
+            </header>
+            <div className="flex-1 overflow-y-auto pt-24 pb-10 scroll-smooth custom-scrollbar h-full">
+              {messages.length === 0 ? (
+                <EmptyState onSelectPrompt={(p) => handleSendMessage(p, [])} />
+              ) : (
+                <>
+                  {messages.map((msg, i) => (
+                    <ChatMessage
+                      key={i}
+                      {...msg}
+                      onRegenerate={i === messages.length - 1 && msg.role === 'prism' ? handleRegenerate : undefined}
+                    />
+                  ))}
+                  <div ref={messagesEndRef} />
+                </>
+              )}
+            </div>
 
-              <div className="shrink-0 w-full mt-auto">
-                <ChatInput ref={chatInputRef} onSendMessage={handleSendMessage} isLoading={isLoading} />
-              </div>
+            <div className="shrink-0 w-full mt-auto">
+              <ChatInput ref={chatInputRef} onSendMessage={handleSendMessage} isLoading={isLoading} />
             </div>
-          ) : activeView === 'knowledge' ? (
-            <div className="flex-1 flex flex-col pt-16 overflow-y-auto">
-              <KnowledgeBase />
-            </div>
-          ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-500 bg-[#1B1B1B] border border-white/10 rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-500 font-medium font-medium">
-              <p className="text-xl italic">The {activeView} module is under development.</p>
-            </div>
-          )}
-        </main>
-      </div>
-    );
-  }
+          </div>
+        ) : activeView === 'knowledge' ? (
+          <div className="flex-1 flex flex-col pt-16 overflow-y-auto">
+            <KnowledgeBase />
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-gray-500 bg-[#1B1B1B] border border-white/10 rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-500 font-medium font-medium">
+            <p className="text-xl italic">The {activeView} module is under development.</p>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
