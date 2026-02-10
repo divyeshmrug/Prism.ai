@@ -70,8 +70,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, isStreaming, i
                         <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
                             components={{
-                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                code({ inline, className, children, ...props }: React.ComponentPropsWithoutRef<'code'> & { inline?: boolean, node?: any }) {
+                                code({ inline, className, children, ...props }: React.ComponentPropsWithoutRef<'code'> & { inline?: boolean }) {
                                     const match = /language-(\w+)/.exec(className || '');
                                     const codeContent = String(children).replace(/\n$/, '');
 

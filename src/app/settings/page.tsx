@@ -8,7 +8,8 @@ import { useToast } from '@/components/ToastProvider';
 export default function SettingsPage() {
     const { user, updateProfile, deleteAccount } = useAuth();
     const { showToast } = useToast();
-    const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'api' | 'intelligence'>('profile');
+    type TabType = 'profile' | 'security' | 'api' | 'intelligence';
+    const [activeTab, setActiveTab] = useState<TabType>('profile');
 
     // Profile State
     const [name, setName] = useState('');
@@ -64,7 +65,7 @@ export default function SettingsPage() {
         showToast('AI Persona updated', 'success');
     };
 
-    const tabs = [
+    const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
         { id: 'profile', label: 'Profile', icon: <User className="w-4 h-4" /> },
         { id: 'intelligence', label: 'Intelligence', icon: <Brain className="w-4 h-4" /> },
         { id: 'security', label: 'Security', icon: <Shield className="w-4 h-4" /> },
@@ -88,8 +89,7 @@ export default function SettingsPage() {
                 {tabs.map(tab => (
                     <button
                         key={tab.id}
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        onClick={() => setActiveTab(tab.id as any)}
+                        onClick={() => setActiveTab(tab.id)}
                         className={`flex items-center gap-2 px-6 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeTab === tab.id
                             ? 'border-purple-500 text-white'
                             : 'border-transparent text-gray-500 hover:text-gray-300'

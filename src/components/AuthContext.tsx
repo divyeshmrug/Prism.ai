@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from './ToastProvider';
 
@@ -27,28 +27,23 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [state, setState] = useState<{ user: User | null; isLoading: boolean }>({
-        user: null,
-        isLoading: true
+    const [state, setState] = useState<{ user: User | null; isLoading: boolean }>(() => {
+        if (typeof window !== 'undefined') {
+            const storedUser = localStorage.getItem('prism_user_session');
+            if (storedUser) {
+                try {
+                    return { user: JSON.parse(storedUser), isLoading: false };
+                } catch {
+                    localStorage.removeItem('prism_user_session');
+                }
+            }
+        }
+        return { user: null, isLoading: false };
     });
     const router = useRouter();
     const { showToast } = useToast();
 
-    useEffect(() => {
-        // Check for saved session
-        const storedUser = localStorage.getItem('prism_user_session');
-        if (storedUser) {
-            try {
-                // eslint-disable-next-line react-hooks/set-state-in-effect
-                setState({ user: JSON.parse(storedUser), isLoading: false });
-            } catch {
-                localStorage.removeItem('prism_user_session');
-                setState({ user: null, isLoading: false });
-            }
-        } else {
-            setState({ user: null, isLoading: false });
-        }
-    }, []);
+    // Remove the useEffect that was causing cascading renders
 
     const { user, isLoading } = state;
 
@@ -106,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         const newUser: User = {
-            id: Math.random().toString(36).substr(2, 9),
+            id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substr(2, 9),
             name,
             email,
             role: 'user'

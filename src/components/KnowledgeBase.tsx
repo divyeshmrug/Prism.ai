@@ -8,7 +8,12 @@ interface KnowledgeItem {
     size: string;
     status: 'indexed' | 'indexing' | 'error';
     date: string;
-    content?: string; // Added content field
+    content?: string;
+}
+
+interface PDFTextItem {
+    str: string;
+    [key: string]: unknown;
 }
 
 const KnowledgeBase = () => {
@@ -57,8 +62,9 @@ const KnowledgeBase = () => {
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const pageText = textContent.items.map((item: any) => item.str || '').join(' ');
+                const pageText = textContent.items
+                    .map((item) => (item as PDFTextItem).str || '')
+                    .join(' ');
                 fullText += pageText + '\n';
             }
             return fullText;
@@ -70,7 +76,7 @@ const KnowledgeBase = () => {
 
     const handleFiles = async (files: File[]) => {
         const newItems: KnowledgeItem[] = files.map(file => ({
-            id: Math.random().toString(36).substr(2, 9),
+            id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substr(2, 9),
             name: file.name,
             type: file.name.split('.').pop()?.toUpperCase() || 'FILE',
             size: (file.size / (1024 * 1024)).toFixed(2) + ' MB',

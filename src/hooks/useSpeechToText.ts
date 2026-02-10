@@ -27,16 +27,22 @@ interface SpeechRecognition extends EventTarget {
     onend: () => void;
 }
 
+declare global {
+    interface Window {
+        SpeechRecognition: new () => SpeechRecognition;
+        webkitSpeechRecognition: new () => SpeechRecognition;
+    }
+}
+
 export const useSpeechToText = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [transcript, setTranscript] = useState('');
     const recognitionRef = useRef<SpeechRecognition | null>(null);
 
     useEffect(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            recognitionRef.current = new SpeechRecognition();
+        const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognitionClass) {
+            recognitionRef.current = new SpeechRecognitionClass();
             if (recognitionRef.current) {
                 recognitionRef.current.continuous = true;
                 recognitionRef.current.interimResults = true;

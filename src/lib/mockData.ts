@@ -25,7 +25,7 @@ export interface DashboardStats {
 export const mockUsers: User[] = [
     {
         id: '1',
-        name: 'gandu_suro',
+        name: 'Alexander Ross',
         email: 'raconleader@gmail.com',
         role: 'admin',
         status: 'active',
@@ -34,7 +34,7 @@ export const mockUsers: User[] = [
     },
     {
         id: '2',
-        name: 'pado',
+        name: 'Marcus Chen',
         email: 'manav@example.com',
         role: 'user',
         status: 'active',
