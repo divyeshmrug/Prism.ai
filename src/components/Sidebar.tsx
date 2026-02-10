@@ -75,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </button>
             )}
 
-            <aside className={`fixed top-0 left-0 h-full bg-[#33342f] border-r border-[#2e2f2a] transition-all duration-300 z-40 ${isOpen ? 'w-[280px]' : 'w-0 overflow-hidden'
+            <aside className={`fixed top-0 left-0 h-full bg-[#1B1B1B] border-r border-[#333333] transition-all duration-300 z-40 ${isOpen ? 'w-[280px]' : 'w-0 overflow-hidden'
                 }`}>
                 <div className="flex flex-col h-full w-[280px]">
                     {/* Brand Header */}

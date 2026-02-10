@@ -108,7 +108,7 @@ export default function Home() {
     totalMessages: 1248,
     activeAgents: 4,
     health: '100%',
-    themeColor: '#535434'
+    themeColor: '#4E313D'
   };
 
   const handleNewChat = () => {
@@ -329,7 +329,19 @@ export default function Home() {
       <main className={`relative z-10 flex-1 flex flex-col transition-all duration-300 ease-in-out h-full ${isSidebarOpen ? 'pl-[280px]' : 'pl-0'
         }`}>
         {activeView === 'chat' ? (
-          <div className="flex-1 flex flex-col relative overflow-hidden">
+          <div className="flex-1 flex flex-col relative">
+            {/* Header */}
+            <header className="h-20 border-b border-white/5 flex items-center justify-between px-10 bg-[#1B1B1B]/80 backdrop-blur-xl sticky top-0 z-30">
+              <div className="flex items-center gap-6">
+                <div className="flex flex-col">
+                  <h2 className="text-xl font-bold text-white tracking-tight">Prism Terminal</h2>
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-2 w-2 rounded-full bg-accent animate-pulse" />
+                    <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest">v2.5 Hybrid Cloud • Online</span>
+                  </div>
+                </div>
+              </div>
+            </header>
             <div className="flex-1 overflow-y-auto pt-20 pb-10 scroll-smooth custom-scrollbar">
               {messages.length === 0 ? (
                 <EmptyState onSelectPrompt={(p) => handleSendMessage(p, [])} />
@@ -356,7 +368,7 @@ export default function Home() {
             <KnowledgeBase />
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500 bg-[#33342f] border border-white/10 rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-500 font-medium">
+          <div className="flex-1 flex items-center justify-center text-gray-500 bg-[#1B1B1B] border border-white/10 rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-500 font-medium font-medium">
             <p className="text-xl italic">The {activeView} module is under development.</p>
           </div>
         )}
