@@ -48,11 +48,14 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ role, content, isStreaming, i
     };
 
     return (
-        <div className={`flex w-full py-10 transition-colors ${role === 'prism' ? 'bg-surface/30 border-y border-white/5' : ''}`}>
-            <div className="max-w-4xl mx-auto flex gap-8 px-6 w-full group">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ${role === 'user' ? 'bg-accent' : 'bg-primary'
+        <div className={`w-full py-10 px-6 sm:px-12 flex flex-col group transition-colors ${role === 'user' ? 'bg-transparent' : 'bg-white/[0.02] border-y border-white/[0.02]'
+            }`}>
+            <div className="max-w-4xl mx-auto w-full flex gap-6 sm:gap-10">
+                <div className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center border ${role === 'user'
+                        ? 'bg-primary/10 border-primary/20 text-primary'
+                        : 'bg-accent/10 border-accent/20 text-accent'
                     }`}>
-                    {role === 'user' ? <User className="w-6 h-6 text-white" /> : <Bot className="w-6 h-6 text-white" />}
+                    {role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
                 </div>
 
                 <div className="flex-1 space-y-2 overflow-hidden">

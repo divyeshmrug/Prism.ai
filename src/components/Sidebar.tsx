@@ -75,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </button>
             )}
 
-            <aside className={`fixed top-0 left-0 h-full bg-[#1B1B1B] border-r border-[#333333] transition-all duration-300 z-40 ${isOpen ? 'w-[280px]' : 'w-0 overflow-hidden'
+            <aside className={`fixed top-0 left-0 h-full bg-[#1B1B1B] border-r border-white/5 transition-all duration-300 z-40 ${isOpen ? 'w-[280px]' : 'w-0 overflow-hidden'
                 }`}>
                 <div className="flex flex-col h-full w-[280px]">
                     {/* Brand Header */}
@@ -119,9 +119,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <button
                                 key={item.id}
                                 onClick={() => onViewChange(item.id as ViewType)}
-                                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 group ${activeView === item.id
-                                    ? 'bg-primary text-white shadow-lg'
-                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-none transition-all duration-200 group ${activeView === item.id
+                                    ? 'text-white border-l-2 border-primary bg-primary/5'
+                                    : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
                                     }`}
                             >
                                 <div className={`${activeView === item.id ? 'text-white' : 'text-gray-600 group-hover:text-gray-400'}`}>
@@ -208,8 +208,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                         {user ? (
                             <div className="flex items-center justify-between group">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white uppercase border border-white/10">
-                                        {user.name.slice(0, 2)}
+                                    <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-bold shadow-inner">
+                                        {user?.name?.[0].toUpperCase()}
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-sm text-white font-bold truncate max-w-[120px]">{user.name}</span>

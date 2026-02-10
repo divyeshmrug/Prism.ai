@@ -311,11 +311,7 @@ export default function Home() {
 
   return (
     <div className="flex h-screen bg-background text-white selection:bg-primary/30 overflow-hidden">
-      {/* Premium Background Layer */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#242424_0%,_transparent_50%)]" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150" />
-      </div>
+      {/* Integrated Minimalism: No noise/gradients */}
 
       <Sidebar
         isOpen={isSidebarOpen}
@@ -336,19 +332,19 @@ export default function Home() {
         }`}>
         {activeView === 'chat' ? (
           <div className="flex-1 flex flex-col relative h-full min-h-0 overflow-hidden">
-            {/* Header */}
-            <header className="absolute top-0 left-0 w-full h-20 border-b border-white/5 flex items-center justify-between px-10 bg-background/80 backdrop-blur-xl z-30">
+            {/* Minimalist Constant Header */}
+            <header className="absolute top-0 left-0 w-full h-16 border-b border-white/5 flex items-center justify-between px-10 bg-background z-30">
               <div className="flex items-center gap-6">
                 <div className="flex flex-col">
-                  <h2 className="text-xl font-bold text-white tracking-tight">Prism Terminal</h2>
+                  <h2 className="text-sm font-bold text-gray-400 uppercase tracking-[0.2em]">Neural Output</h2>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-2 w-2 rounded-full bg-accent animate-pulse" />
-                    <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest">v2.5 Hybrid Cloud • Online</span>
+                    <span className="flex h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                    <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest italic">Core Secured</span>
                   </div>
                 </div>
               </div>
             </header>
-            <div className="flex-1 overflow-y-auto pt-24 pb-10 scroll-smooth custom-scrollbar h-full">
+            <div className="flex-1 overflow-y-auto pt-20 pb-10 scroll-smooth custom-scrollbar h-full">
               {messages.length === 0 ? (
                 <EmptyState onSelectPrompt={(p) => handleSendMessage(p, [])} />
               ) : (
