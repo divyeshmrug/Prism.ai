@@ -87,7 +87,7 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onSendMessage, 
 
             <form
                 onSubmit={handleSubmit}
-                className="relative flex items-center bg-[#0d0d0d] border border-white/10 rounded-full h-[72px] px-2 pl-6 focus-within:border-white/20 transition-all shadow-2xl group"
+                className="relative flex items-center bg-surface border border-white/10 rounded-full h-[72px] px-2 pl-6 focus-within:border-white/20 transition-all shadow-2xl group"
             >
                 <button
                     type="button"
@@ -127,7 +127,7 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onSendMessage, 
                     <button
                         type="submit"
                         disabled={(!input.trim() && files.length === 0) || isLoading}
-                        className="h-[56px] px-8 bg-black border border-white/10 rounded-full text-white font-bold text-sm tracking-wide hover:bg-white hover:text-black transition-all flex items-center gap-2 group-focus-within:border-primary/50"
+                        className="h-[56px] px-8 bg-primary border border-white/10 rounded-full text-white font-bold text-sm tracking-wide hover:opacity-90 transition-all flex items-center gap-2 group-focus-within:border-white/30"
                     >
                         {isLoading ? "Thinking..." : "Search Now"}
                     </button>

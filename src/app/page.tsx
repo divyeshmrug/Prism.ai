@@ -329,9 +329,9 @@ export default function Home() {
       <main className={`relative z-10 flex-1 flex flex-col transition-all duration-300 ease-in-out h-full ${isSidebarOpen ? 'pl-[280px]' : 'pl-0'
         }`}>
         {activeView === 'chat' ? (
-          <div className="flex-1 flex flex-col relative">
+          <div className="flex-1 flex flex-col relative h-full min-h-0 overflow-hidden">
             {/* Header */}
-            <header className="h-20 border-b border-white/5 flex items-center justify-between px-10 bg-[#1B1B1B]/80 backdrop-blur-xl sticky top-0 z-30">
+            <header className="absolute top-0 left-0 w-full h-20 border-b border-white/5 flex items-center justify-between px-10 bg-background/80 backdrop-blur-xl z-30">
               <div className="flex items-center gap-6">
                 <div className="flex flex-col">
                   <h2 className="text-xl font-bold text-white tracking-tight">Prism Terminal</h2>
@@ -342,7 +342,7 @@ export default function Home() {
                 </div>
               </div>
             </header>
-            <div className="flex-1 overflow-y-auto pt-20 pb-10 scroll-smooth custom-scrollbar">
+            <div className="flex-1 overflow-y-auto pt-24 pb-10 scroll-smooth custom-scrollbar h-full">
               {messages.length === 0 ? (
                 <EmptyState onSelectPrompt={(p) => handleSendMessage(p, [])} />
               ) : (
