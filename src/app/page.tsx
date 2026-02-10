@@ -210,7 +210,8 @@ export default function Home() {
       }
 
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Use 1.5 Flash for multimodal
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Use 2.5 Flash as discovered working model
+
 
       // Build Prompt Parts
       const promptParts: Part[] = [];
